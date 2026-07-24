@@ -344,6 +344,12 @@
   .success-view .icon { font-size: 52px; margin-bottom: 16px; }
   .success-view h3 { font-family: var(--font-display); font-size: 19px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
   .success-view p { font-size: 14px; color: var(--gray); margin-bottom: 4px; }
+  .receipt-view { justify-content: flex-start; padding: 24px 20px; overflow-y: auto; }
+  .receipt-box { width: 100%; max-width: 380px; background: var(--light); border-radius: 14px; padding: 18px; margin-top: 8px; text-align: left; }
+  .receipt-order-number { font-size: 14px; color: var(--navy); margin-bottom: 4px; }
+  .receipt-meta { font-size: 12px; color: var(--gray); text-align: left; line-height: 1.6; border-top: 1px dashed #d5dae2; padding-top: 10px; margin-top: 4px; }
+  .receipt-return-hint { font-size: 12px; color: var(--gray); margin-top: 14px; max-width: 380px; }
+  .receipt-return-hint a { color: var(--sky-dark); font-weight: 700; }
 
   /* ===== Footer ===== */
   footer.site-footer { background: var(--navy); color: white; margin-top: 20px; padding: 48px 20px 20px; }
@@ -801,6 +807,13 @@
       success_title: 'Comanda a fost trimisă!',
       success_order_number: 'Numărul comenzii:',
       success_message: 'Te vom contacta în curând pentru confirmare.',
+      receipt_subtotal: 'Subtotal',
+      receipt_discount: 'Reducere',
+      receipt_delivery: 'Livrare',
+      receipt_free: 'Gratuită',
+      receipt_total: 'Total',
+      receipt_return_hint: 'Ai nevoie de retur sau schimb mai târziu? Folosește numărul comenzii de mai sus în',
+      receipt_return_link: 'formularul de retur',
       wishlist_title: 'Favorite',
       wishlist_empty: 'Nu ai produse favorite încă.',
       wishlist_discover: 'Descoperă produsele',
@@ -938,6 +951,13 @@
       success_title: 'Заказ отправлен!',
       success_order_number: 'Номер заказа:',
       success_message: 'Мы свяжемся с вами в ближайшее время для подтверждения.',
+      receipt_subtotal: 'Подытог',
+      receipt_discount: 'Скидка',
+      receipt_delivery: 'Доставка',
+      receipt_free: 'Бесплатно',
+      receipt_total: 'Итого',
+      receipt_return_hint: 'Нужен возврат или обмен позже? Используйте номер заказа выше в',
+      receipt_return_link: 'форме возврата',
       wishlist_title: 'Избранное',
       wishlist_empty: 'У тебя пока нет избранных товаров.',
       wishlist_discover: 'Смотреть товары',
@@ -1856,6 +1876,20 @@ var BRAND_LOGOS = {
       .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
       .then(function (res) {
         if (!res.ok) throw new Error(res.data.error || t('checkout_error_generic'));
+        var totals = cartTotals();
+        window._lastOrderReceipt = {
+          order_number: res.data.order_number,
+          items: cart.slice(),
+          subtotal: totals.subtotal,
+          deliveryCost: totals.deliveryCost,
+          total: res.data.total || totals.total,
+          discountAmount: res.data.discount_amount || 0,
+          customerName: name,
+          customerPhone: phone,
+          deliveryAddress: address,
+          deliveryCity: city,
+          paymentMethod: payment
+        };
         cart = []; saveCart(); updateCartBadge();
         window._lastOrderNumber = res.data.order_number;
         cartView = 'success'; renderCartPanel();
@@ -1869,11 +1903,36 @@ var BRAND_LOGOS = {
   }
 
   function successViewHtml() {
-    var orderNumber = window._lastOrderNumber;
-    return '<div class="success-view"><span class="icon">✅</span><h3>' + t('success_title') + '</h3>' +
-      (orderNumber ? '<p>' + t('success_order_number') + ' <strong>#' + orderNumber + '</strong></p>' : '') +
-      '<p>' + t('success_message') + '</p>' +
-      '<button class="btn-sky" style="border:none;border-radius:10px;padding:12px 24px;font-weight:700;margin-top:20px;" id="success-continue-btn">' + t('cart_continue') + '</button></div>';
+    var r = window._lastOrderReceipt;
+    if (!r) {
+      return '<div class="success-view"><span class="icon">✅</span><h3>' + t('success_title') + '</h3>' +
+        '<p>' + t('success_message') + '</p>' +
+        '<button class="btn-sky" style="border:none;border-radius:10px;padding:12px 24px;font-weight:700;margin-top:20px;" id="success-continue-btn">' + t('cart_continue') + '</button></div>';
+    }
+    var itemsRows = r.items.map(function (i) {
+      var name = (currentLang === 'ru' && i.product_name_ru) ? i.product_name_ru : i.product_name;
+      return '<tr>' +
+        '<td style="padding:8px 4px;text-align:left;">' + escapeHtml(i.product_brand) + ' — ' + escapeHtml(name) + '<br><span style="color:#999;font-size:12px;">EU ' + i.size + ' × ' + i.quantity + '</span></td>' +
+        '<td style="padding:8px 4px;text-align:right;white-space:nowrap;">' + (i.price * i.quantity) + ' MDL</td>' +
+        '</tr>';
+    }).join('');
+    return '<div class="success-view receipt-view">' +
+      '<span class="icon">✅</span><h3>' + t('success_title') + '</h3>' +
+      '<div class="receipt-box">' +
+        '<p class="receipt-order-number">' + t('success_order_number') + ' <strong>#' + r.order_number + '</strong></p>' +
+        '<table style="width:100%;border-collapse:collapse;margin:10px 0;font-size:13px;">' +
+          '<tbody>' + itemsRows + '</tbody>' +
+          '<tfoot>' +
+            '<tr><td style="padding:4px;text-align:left;color:#666;">' + t('receipt_subtotal') + '</td><td style="padding:4px;text-align:right;">' + r.subtotal + ' MDL</td></tr>' +
+            (r.discountAmount ? '<tr><td style="padding:4px;text-align:left;color:#666;">' + t('receipt_discount') + '</td><td style="padding:4px;text-align:right;color:var(--red);">-' + r.discountAmount + ' MDL</td></tr>' : '') +
+            '<tr><td style="padding:4px;text-align:left;color:#666;">' + t('receipt_delivery') + '</td><td style="padding:4px;text-align:right;">' + (r.deliveryCost === 0 ? t('receipt_free') : r.deliveryCost + ' MDL') + '</td></tr>' +
+            '<tr><td style="padding:8px 4px 4px;text-align:left;font-weight:800;border-top:1.5px solid #e0e4ea;">' + t('receipt_total') + '</td><td style="padding:8px 4px 4px;text-align:right;font-weight:800;border-top:1.5px solid #e0e4ea;">' + r.total + ' MDL</td></tr>' +
+          '</tfoot>' +
+        '</table>' +
+        '<p class="receipt-meta">' + escapeHtml(r.customerName) + ' · ' + escapeHtml(r.customerPhone) + '<br>' + escapeHtml(r.deliveryAddress) + ', ' + escapeHtml(r.deliveryCity) + '<br>' + escapeHtml(r.paymentMethod) + '</p>' +
+      '</div>' +
+      '<p class="receipt-return-hint">' + t('receipt_return_hint') + ' <a href="/legal/retur.html">' + t('receipt_return_link') + '</a></p>' +
+      '<button class="btn-sky" style="border:none;border-radius:10px;padding:12px 24px;font-weight:700;margin-top:16px;" id="success-continue-btn">' + t('cart_continue') + '</button></div>';
   }
 
   // ===== Wishlist drawer =====
