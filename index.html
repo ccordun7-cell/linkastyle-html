@@ -281,7 +281,10 @@
   .modal-description { font-size: 14px; color: var(--gray); line-height: 1.7; margin: 18px 0; }
   .size-label { display: block; font-size: 13px; font-weight: 700; color: var(--gray); margin-bottom: 10px; margin-top: 22px; }
   .size-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-  .size-btn { width: 50px; height: 46px; border-radius: 10px; font-weight: 700; font-size: 14px; border: 1.5px solid #e0e4ea; background: white; color: var(--navy); font-family: var(--font-body); }
+  .size-btn { width: 50px; height: 54px; border-radius: 10px; font-weight: 700; font-size: 14px; border: 1.5px solid #e0e4ea; background: white; color: var(--navy); font-family: var(--font-body); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; gap: 1px; }
+  .size-btn-cm { font-size: 9px; font-weight: 500; color: var(--gray); }
+  .size-btn.disabled .size-btn-cm { color: #ccc; }
+  .size-selected-note { font-size: 12px; color: var(--gray); margin-top: 8px; }
   .size-btn.selected { border: 2px solid var(--sky); background: #eaf5fd; }
   .size-btn.disabled { background: #f5f5f5; color: #ccc; text-decoration: line-through; cursor: not-allowed; }
   .add-to-cart-btn { margin-top: 26px; width: 100%; padding: 15px; border-radius: 12px; border: none; background: #e0e4ea; color: #999; font-weight: 700; font-size: 15px; font-family: var(--font-body); }
@@ -734,6 +737,7 @@
       label_out_of_stock: 'Stoc epuizat',
       label_choose_size: 'Alege mărimea (EU)',
       label_no_sizes: 'Nu sunt mărimi disponibile momentan.',
+      label_size_length_note: 'Mărimea aleasă corespunde la aproximativ {cm} cm lungime interior talpă.',
       btn_add_to_cart: 'Adaugă în coș',
       btn_choose_size_first: 'Alege mai întâi mărimea',
       btn_added_to_cart: '✓ Adăugat în coș',
@@ -869,6 +873,7 @@
       label_out_of_stock: 'Нет в наличии',
       label_choose_size: 'Выберите размер (EU)',
       label_no_sizes: 'Сейчас нет доступных размеров.',
+      label_size_length_note: 'Выбранный размер соответствует примерно {cm} см длины стельки.',
       btn_add_to_cart: 'Добавить в корзину',
       btn_choose_size_first: 'Сначала выберите размер',
       btn_added_to_cart: '✓ Добавлено в корзину',
@@ -1062,6 +1067,14 @@ var BRAND_LOGOS = {
   }
   function getBrandLogo(name) {
     return BRAND_LOGOS[normalizeBrandKey(name)] || null;
+  }
+
+  // Conversie marime EU -> lungime talpa in cm, dupa standardul "Paris point"
+  // (fiecare marime EU = ~0.667cm), folosit consecvent de majoritatea brandurilor
+  // de incaltaminte pentru copii. Marimea 20 = 12.3cm e punctul de referinta.
+  function sizeToCm(size) {
+    var cm = 12.3 + (size - 20) * (2 / 3);
+    return Math.round(cm * 10) / 10;
   }
 
   function scrollToCatalog() {
@@ -1597,8 +1610,10 @@ var BRAND_LOGOS = {
       : '<div class="size-grid">' + sizes.map(function (s) {
           var outOfStock = s.stock <= 0;
           var cls = 'size-btn' + (outOfStock ? ' disabled' : '') + (modalSelectedSize === s.size ? ' selected' : '');
-          return '<button class="' + cls + '" data-size="' + s.size + '" ' + (outOfStock ? 'disabled' : '') + '>' + s.size + '</button>';
-        }).join('') + '</div>';
+          return '<button class="' + cls + '" data-size="' + s.size + '" ' + (outOfStock ? 'disabled' : '') + '>' +
+            s.size + '<span class="size-btn-cm">' + sizeToCm(s.size) + ' cm</span></button>';
+        }).join('') + '</div>' +
+        (modalSelectedSize ? '<p class="size-selected-note">' + t('label_size_length_note').replace('{cm}', sizeToCm(modalSelectedSize)) + '</p>' : '');
 
     var btnState = modalSelectedSize ? 'ready' : '';
     var btnLabel = modalSelectedSize ? t('btn_add_to_cart') : t('btn_choose_size_first');
