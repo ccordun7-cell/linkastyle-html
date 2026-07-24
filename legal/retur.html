@@ -31,6 +31,19 @@
   ul, ol { padding-left: 20px; margin-top: 8px; }
   li { font-size: 15px; margin-bottom: 4px; }
   .highlight-box { background: white; border: 1px solid #E3E8EF; border-radius: 10px; padding: 16px 20px; margin: 12px 0; }
+  #return-form-wrap { background: white; border: 1px solid #E3E8EF; border-radius: 12px; padding: 24px; margin-top: 16px; }
+  .rf-row { margin-bottom: 16px; }
+  .rf-row label { display: block; font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
+  .rf-row input, .rf-row select, .rf-row textarea {
+    width: 100%; border: 1.5px solid #e0e4ea; border-radius: 10px; padding: 10px 12px;
+    font-size: 14px; font-family: var(--font-body); color: #33475b; box-sizing: border-box;
+  }
+  .rf-row textarea { resize: vertical; }
+  #rf-submit {
+    background: var(--sky); color: white; border: none; border-radius: 10px; padding: 13px 28px;
+    font-size: 15px; font-weight: 700; font-family: var(--font-body); cursor: pointer;
+  }
+  #rf-submit:disabled { opacity: .6; cursor: not-allowed; }
 </style>
 </head>
 <body>
@@ -78,24 +91,145 @@
 <p style="margin-top:10px;"><strong>În general, indiferent de material:</strong> nu spăla încălțămintea la mașina de rufe, nu folosi înălbitori, nu o depozita lângă surse de căldură sau în mediu umed. Produsele din piele nu sunt impermeabile — un produs de impermeabilizare (tip Aquastop) reduce riscul de pătrundere a apei. Recomandăm alternarea a 2-3 perechi de încălțăminte, pentru a le prelungi durata de viață.</p>
 </section>
 
-<section><h2>5. Cum soliciți un retur, schimb sau reclamație de garanție</h2>
-<ol>
-  <li>Contactează-ne la 061 299 950 sau prin formularul de pe site, menționând numărul comenzii</li>
-  <li>Descrie motivul returului/reclamației și, dacă e cazul, atașează fotografii cu defectul</li>
-  <li>Îți vom comunica pașii următori: adresa de retur și modalitatea de rambursare sau schimb</li>
-</ol>
-<p>Dacă mărimea comandată nu se potrivește, poți solicita direct schimbul cu o altă mărime disponibilă, în aceleași condiții ca la retur.</p>
+<section><h2>5. Solicită un retur online</h2>
+<p>Cel mai rapid mod de a iniția un retur, un schimb sau o reclamație de garanție — completează formularul de mai jos și te contactăm noi cu pașii următori.</p>
+<div id="return-form-wrap">
+  <form id="return-form">
+    <div class="rf-row">
+      <label for="rf-order">Număr comandă *</label>
+      <input type="text" id="rf-order" name="order_number" required placeholder="ex: 1042">
+    </div>
+    <div class="rf-row">
+      <label for="rf-name">Nume complet *</label>
+      <input type="text" id="rf-name" name="customer_name" required placeholder="Numele tău">
+    </div>
+    <div class="rf-row">
+      <label for="rf-phone">Telefon *</label>
+      <input type="tel" id="rf-phone" name="customer_phone" required placeholder="06X XXX XXX">
+    </div>
+    <div class="rf-row">
+      <label for="rf-email">Email (opțional)</label>
+      <input type="email" id="rf-email" name="customer_email" placeholder="pentru confirmare pe email">
+    </div>
+    <div class="rf-row">
+      <label for="rf-reason">Motivul returului *</label>
+      <select id="rf-reason-select">
+        <option value="">Alege un motiv...</option>
+        <option value="Mărimea nu se potrivește">Mărimea nu se potrivește</option>
+        <option value="Produsul nu corespunde descrierii">Produsul nu corespunde descrierii</option>
+        <option value="Defect de fabricație">Defect de fabricație</option>
+        <option value="M-am răzgândit">M-am răzgândit</option>
+        <option value="Altul">Altul (descrie mai jos)</option>
+      </select>
+      <textarea id="rf-reason" name="reason" required placeholder="Descrie pe scurt motivul..." rows="3" style="margin-top:8px;"></textarea>
+    </div>
+    <div class="rf-row">
+      <label for="rf-refund">Metodă preferată de rambursare</label>
+      <select id="rf-refund" name="refund_method">
+        <option value="Aceeași metodă de plată">Aceeași metodă de plată folosită la comandă</option>
+        <option value="Transfer bancar">Transfer bancar</option>
+      </select>
+    </div>
+    <div class="rf-row" id="rf-bank-row" style="display:none;">
+      <label for="rf-bank">Detalii cont bancar</label>
+      <input type="text" id="rf-bank" name="bank_details" placeholder="IBAN sau detalii cont">
+    </div>
+    <button type="submit" id="rf-submit">Trimite cererea</button>
+    <p id="rf-message" style="display:none;margin-top:12px;padding:12px 16px;border-radius:8px;font-size:14px;"></p>
+  </form>
+</div>
 </section>
 
-<section><h2>6. Rambursarea</h2>
+<section><h2>6. Cum se procesează cererea ta</h2>
+<ol>
+  <li>Primim cererea și o confirmăm (telefonic sau email, dacă ai indicat unul)</li>
+  <li>Îți comunicăm adresa de retur și pașii următori</li>
+  <li>După ce primim și verificăm produsul, procesăm rambursarea sau schimbul</li>
+</ol>
+<p>Dacă mărimea comandată nu se potrivește, poți solicita direct schimbul cu o altă mărime disponibilă, în aceleași condiții ca la retur — menționează asta în formularul de mai sus.</p>
+</section>
+
+<section><h2>7. Rambursarea</h2>
 <p>În cazul unui retur acceptat, rambursarea se face în maximum 14 zile de la primirea și verificarea produsului returnat, prin aceeași metodă de plată folosită la achiziție (sau prin transfer bancar, la cerere).</p>
 <p>Costul transportului pentru retur este suportat de client, cu excepția cazurilor în care returul e cauzat de o eroare din partea noastră (produs greșit livrat, defect de fabricație).</p>
 </section>
 
-<section><h2>7. Contact</h2>
+<section><h2>8. Contact</h2>
 <p>Pentru orice întrebare legată de retur, schimb sau garanție, ne poți contacta la 061 299 950.</p>
 </section>
 
 </main>
+<script>
+(function () {
+  var RETURN_API_URL = 'https://linka-style.vercel.app/api/retur';
+  var form = document.getElementById('return-form');
+  var reasonSelect = document.getElementById('rf-reason-select');
+  var reasonText = document.getElementById('rf-reason');
+  var refundSelect = document.getElementById('rf-refund');
+  var bankRow = document.getElementById('rf-bank-row');
+  var msgEl = document.getElementById('rf-message');
+  var submitBtn = document.getElementById('rf-submit');
+
+  reasonSelect.addEventListener('change', function () {
+    if (reasonSelect.value && reasonSelect.value !== 'Altul') {
+      reasonText.value = reasonSelect.value;
+    } else if (reasonSelect.value === 'Altul') {
+      reasonText.value = '';
+      reasonText.focus();
+    }
+  });
+
+  refundSelect.addEventListener('change', function () {
+    bankRow.style.display = refundSelect.value === 'Transfer bancar' ? 'block' : 'none';
+  });
+
+  function showMessage(text, isError) {
+    msgEl.textContent = text;
+    msgEl.style.display = 'block';
+    msgEl.style.background = isError ? '#ffebee' : '#e8f5e9';
+    msgEl.style.color = isError ? '#c62828' : '#2e7d32';
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Se trimite...';
+    msgEl.style.display = 'none';
+
+    var payload = {
+      order_number: document.getElementById('rf-order').value.trim(),
+      customer_name: document.getElementById('rf-name').value.trim(),
+      customer_phone: document.getElementById('rf-phone').value.trim(),
+      customer_email: document.getElementById('rf-email').value.trim(),
+      reason: reasonText.value.trim(),
+      refund_method: refundSelect.value,
+      bank_details: document.getElementById('rf-bank').value.trim()
+    };
+
+    fetch(RETURN_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+      .then(function (result) {
+        if (result.ok) {
+          showMessage('Cererea ta a fost trimisă! Te contactăm în curând la telefonul indicat.', false);
+          form.reset();
+          bankRow.style.display = 'none';
+        } else {
+          showMessage(result.data && result.data.error ? result.data.error : 'A apărut o eroare. Încearcă din nou sau sună-ne la 061 299 950.', true);
+        }
+      })
+      .catch(function () {
+        showMessage('Eroare de conexiune. Încearcă din nou sau sună-ne la 061 299 950.', true);
+      })
+      .finally(function () {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Trimite cererea';
+      });
+  });
+})();
+</script>
 </body>
 </html>
