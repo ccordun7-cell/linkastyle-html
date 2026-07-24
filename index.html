@@ -686,6 +686,7 @@
   var SUPABASE_URL = 'https://vikfoygfauwxsepbsxxh.supabase.co';
   var SUPABASE_ANON_KEY = 'sb_publishable_cK3IPqMO4rWxTRXkzlty2Q_uQWzOHaI';
   var ORDER_API_URL = 'https://linka-style.vercel.app/api/comenzi';
+  var NEWSLETTER_API_URL = 'https://linka-style.vercel.app/api/newsletter';
   var FREE_DELIVERY_THRESHOLD = 1000;
   var DELIVERY_COST = 80;
   var CART_STORAGE_KEY = 'linka-cart';
@@ -838,7 +839,10 @@
       cookie_accept: 'Accept',
       newsletter_title: 'Fii primul!',
       newsletter_desc: 'Abonează-te la newsletter și află primul despre reduceri și colecții noi.',
-      newsletter_btn: 'Abonează-te'
+      newsletter_btn: 'Abonează-te',
+      newsletter_sending: 'Se trimite...',
+      newsletter_success: 'Te-ai abonat! ✓',
+      newsletter_error: 'A apărut o eroare. Încearcă din nou.'
     },
     ru: {
       announce1: '🏠 Примерка дома — заказывай несколько размеров',
@@ -982,7 +986,10 @@
       cookie_accept: 'Принять',
       newsletter_title: 'Будь первым!',
       newsletter_desc: 'Подпишись на рассылку и узнавай первым о скидках и новых коллекциях.',
-      newsletter_btn: 'Подписаться'
+      newsletter_btn: 'Подписаться',
+      newsletter_sending: 'Отправка...',
+      newsletter_success: 'Вы подписались! ✓',
+      newsletter_error: 'Произошла ошибка. Попробуйте снова.'
     }
   };
 
@@ -2031,12 +2038,55 @@ var BRAND_LOGOS = {
       document.getElementById('cookie-bar').classList.remove('open');
     });
   }
+  function subscribeNewsletter(emailInputId, buttonEl, source, onSuccess) {
+    var input = document.getElementById(emailInputId);
+    var email = input.value.trim();
+    var emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    var originalText = buttonEl.textContent;
+
+    if (!emailRe.test(email)) {
+      input.style.borderColor = '#e53935';
+      input.focus();
+      return;
+    }
+    input.style.borderColor = '';
+    buttonEl.disabled = true;
+    buttonEl.textContent = t('newsletter_sending');
+
+    fetch(NEWSLETTER_API_URL, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, source: source })
+    })
+      .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
+      .then(function (res) {
+        if (!res.ok) throw new Error((res.data && res.data.error) || t('newsletter_error'));
+        buttonEl.textContent = t('newsletter_success');
+        input.value = '';
+        if (onSuccess) onSuccess();
+        setTimeout(function () { buttonEl.disabled = false; buttonEl.textContent = originalText; }, 3000);
+      })
+      .catch(function (err) {
+        buttonEl.textContent = originalText;
+        buttonEl.disabled = false;
+        input.style.borderColor = '#e53935';
+        alert(err.message || t('newsletter_error'));
+      });
+  }
+
   function initNewsletterPopup() {
+    document.getElementById('footer-newsletter-btn').addEventListener('click', function () {
+      subscribeNewsletter('footer-newsletter-email', document.getElementById('footer-newsletter-btn'), 'footer');
+    });
+
     if (localStorage.getItem(NEWSLETTER_STORAGE_KEY)) return;
     setTimeout(function () { document.getElementById('newsletter-overlay').classList.add('open'); }, 4000);
     function dismiss() { localStorage.setItem(NEWSLETTER_STORAGE_KEY, '1'); document.getElementById('newsletter-overlay').classList.remove('open'); }
     document.getElementById('newsletter-close-btn').addEventListener('click', dismiss);
-    document.getElementById('newsletter-modal-btn').addEventListener('click', dismiss);
+    document.getElementById('newsletter-modal-btn').addEventListener('click', function () {
+      subscribeNewsletter('newsletter-modal-email', document.getElementById('newsletter-modal-btn'), 'popup', function () {
+        setTimeout(dismiss, 1200);
+      });
+    });
   }
 
   // ===== Global event bindings =====
