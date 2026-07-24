@@ -393,6 +393,8 @@
   }
   @media (max-width: 640px) {
     .announce-bar .container { gap: 14px; font-size: 11px; }
+    .utility-bar .container { gap: 10px; padding: 6px 12px; overflow-x: auto; white-space: nowrap; justify-content: flex-start; }
+    .utility-bar { font-size: 11px; }
     .category-tiles { grid-template-columns: 1fr; }
     .footer-grid { grid-template-columns: 1fr; }
     .hero-slider { height: 300px; }
@@ -437,6 +439,7 @@
 <div class="utility-bar">
   <div class="container">
     <a href="tel:+37361299950"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> 061 299 950</a>
+    <a href="/legal/retur.html"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> <span data-i18n="utility_return">Retur</span></a>
     <a href="#" id="wishlist-open-link" data-i18n="utility_favorites">♡ Favorite</a>
     <div class="lang-switch">
       <button class="lang-switch-btn" data-lang="ro">RO</button>
@@ -693,6 +696,7 @@
       announce3: '🔄 Garanție 365 zile',
       utility_phone_aria: 'Telefon',
       utility_favorites: '♡ Favorite',
+      utility_return: 'Retur',
       aria_search: 'Căutare',
       aria_favorites: 'Favorite',
       aria_cart: 'Coș',
@@ -829,6 +833,7 @@
       announce3: '🔄 Гарантия 365 дней',
       utility_phone_aria: 'Телефон',
       utility_favorites: '♡ Избранное',
+      utility_return: 'Возврат',
       aria_search: 'Поиск',
       aria_favorites: 'Избранное',
       aria_cart: 'Корзина',
