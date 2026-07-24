@@ -396,6 +396,27 @@
     .category-tiles { grid-template-columns: 1fr; }
     .footer-grid { grid-template-columns: 1fr; }
     .hero-slider { height: 300px; }
+
+    /* Doua produse pe rand pe mobil, cu tot continutul cardului redus proportional */
+    .product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    main.catalog-section { padding: 20px 12px; }
+    .product-card { border-radius: 12px; }
+    .product-image img { padding: 6px; }
+    .product-info { padding: 8px; }
+    .product-brand { font-size: 12px; }
+    .product-brand-logo { height: 14px; }
+    .product-name { font-size: 11px; margin: 1px 0 6px; }
+    .product-sizes-row { font-size: 9px; margin-bottom: 3px; }
+    .product-price { font-size: 13px; }
+    .product-price-old { font-size: 10px; }
+    .discount-badge, .badge-tag { font-size: 9px; padding: 3px 6px; top: 6px; left: 6px; }
+    .badge-premium { top: 26px; }
+    .wishlist-heart { width: 24px; height: 24px; font-size: 15px; top: 4px; right: 4px; }
+    .out-of-stock-overlay span { font-size: 10px; padding: 4px 10px; }
+
+    /* Carduri mai mici si in carusele (bestsellers, recomandate) */
+    .product-carousel .product-card { min-width: 150px; max-width: 150px; }
+    .product-carousel { gap: 10px; }
   }
   @media (max-width: 700px) {
     .product-page-grid { grid-template-columns: 1fr; gap: 24px; }
