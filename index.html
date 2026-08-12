@@ -118,9 +118,16 @@
   .icon-btn { position: relative; background: var(--light); border: none; border-radius: 10px; width: 42px; height: 42px; font-size: 18px; flex-shrink: 0; }
   .icon-badge { position: absolute; top: -4px; right: -4px; background: var(--red); color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
   .header-burger { display: none; background: none; border: none; font-size: 22px; color: var(--navy); }
-  .mobile-nav { display: none; padding: 0 20px 14px; gap: 8px; flex-wrap: wrap; }
-  .mobile-nav button { background: var(--light); color: var(--navy); border: none; border-radius: 8px; padding: 8px 14px; font-weight: 700; font-size: 14px; font-family: var(--font-body); }
-  .mobile-nav button.active { background: var(--sky); color: white; }
+  .mobile-nav { display: none; flex-direction: column; max-height: 75vh; overflow-y: auto; -webkit-overflow-scrolling: touch; border-top: 1px solid #eee; }
+  .mn-section { border-bottom: 1px solid #eee; }
+  .mn-cat-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; background: none; border: none; padding: 14px 20px; font-weight: 700; font-size: 15px; color: var(--navy); font-family: var(--font-body); text-align: left; }
+  .mn-cat-toggle .mn-chevron { font-size: 11px; color: var(--gray); transition: transform .2s ease; }
+  .mn-section.open .mn-cat-toggle .mn-chevron { transform: rotate(180deg); }
+  .mn-subpanel { display: none; flex-direction: column; padding: 0 20px 12px 34px; }
+  .mn-section.open .mn-subpanel { display: flex; }
+  .mn-subpanel a { padding: 9px 0; font-size: 14px; color: var(--gray); font-weight: 500; }
+  .mn-subpanel a.mn-viewall { color: var(--sky-dark); font-weight: 700; }
+  .mn-flat-btn { width: 100%; text-align: left; background: none; border: none; padding: 14px 20px; font-weight: 700; font-size: 15px; color: var(--navy); font-family: var(--font-body); border-bottom: 1px solid #eee; }
 
   /* ===== Search overlay ===== */
   .search-overlay { position: fixed; inset: 0; background: rgba(27,46,75,.97); z-index: 500; display: none; flex-direction: column; align-items: center; padding: 80px 20px; }
@@ -278,7 +285,7 @@
   .modal-price.on-sale { color: var(--red); }
   .modal-price-old { font-size: 15px; color: #999; text-decoration: line-through; }
   .modal-meta { font-size: 12px; color: var(--gray); }
-  .modal-description { font-size: 14px; color: var(--gray); line-height: 1.7; margin: 18px 0; }
+  .modal-description { font-size: 14px; color: var(--gray); line-height: 1.7; margin: 18px 0; white-space: pre-line; }
   .size-label { display: block; font-size: 13px; font-weight: 700; color: var(--gray); margin-bottom: 10px; margin-top: 22px; }
   .size-grid { display: flex; flex-wrap: wrap; gap: 8px; }
   .size-btn { width: 50px; height: 54px; border-radius: 10px; font-weight: 700; font-size: 14px; border: 1.5px solid #e0e4ea; background: white; color: var(--navy); font-family: var(--font-body); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; gap: 1px; }
@@ -1337,12 +1344,50 @@ var BRAND_LOGOS = {
 
   function renderMobileNav() {
     var mobileNav = document.getElementById('mobile-nav');
-    var html = '<button data-reset="1">' + t('nav_all') + '</button>' + CATEGORIES.map(function (c) {
-      return '<button data-cat="' + c.value + '">' + t(c.labelKey) + '</button>';
-    }).join('') + '<button data-sale="1">' + t('nav_sale') + '</button>';
-    mobileNav.innerHTML = html;
-    Array.prototype.forEach.call(mobileNav.querySelectorAll('[data-cat]'), function (btn) {
-      btn.addEventListener('click', function () { applyFilters({ category: btn.getAttribute('data-cat') }); mobileNav.classList.remove('open'); });
+
+    var catsHtml = CATEGORIES.map(function (c) {
+      var typeLinks = TYPES.map(function (ty) {
+        return '<a href="#" data-cat="' + c.value + '" data-type="' + ty.value + '">' + t(ty.labelKey) + '</a>';
+      }).join('');
+      return '' +
+        '<div class="mn-section">' +
+          '<button class="mn-cat-toggle" type="button">' + t(c.labelKey) + '<span class="mn-chevron">▾</span></button>' +
+          '<div class="mn-subpanel">' + typeLinks + '<a href="#" class="mn-viewall" data-cat="' + c.value + '">' + t('nav_view_all') + '</a></div>' +
+        '</div>';
+    }).join('');
+
+    var brandLinksHtml = brands.map(function (b) {
+      return '<a href="#" data-brand="' + escapeHtml(b.slug) + '">' + escapeHtml(b.name) + '</a>';
+    }).join('');
+    var brandsHtml = '' +
+      '<div class="mn-section">' +
+        '<button class="mn-cat-toggle" type="button">' + t('nav_brand_title') + '<span class="mn-chevron">▾</span></button>' +
+        '<div class="mn-subpanel">' + brandLinksHtml + '</div>' +
+      '</div>';
+
+    var flatHtml =
+      '<button class="mn-flat-btn" data-sale="1">' + t('nav_sale') + '</button>' +
+      '<button class="mn-flat-btn" data-reset="1">' + t('nav_all') + '</button>';
+
+    mobileNav.innerHTML = catsHtml + brandsHtml + flatHtml;
+
+    Array.prototype.forEach.call(mobileNav.querySelectorAll('.mn-cat-toggle'), function (btn) {
+      btn.addEventListener('click', function () {
+        var section = btn.parentElement;
+        var wasOpen = section.classList.contains('open');
+        Array.prototype.forEach.call(mobileNav.querySelectorAll('.mn-section'), function (s) { s.classList.remove('open'); });
+        if (!wasOpen) section.classList.add('open');
+      });
+    });
+    Array.prototype.forEach.call(mobileNav.querySelectorAll('[data-cat]'), function (el) {
+      el.addEventListener('click', function (e) {
+        e.preventDefault();
+        applyFilters({ category: el.getAttribute('data-cat'), type: el.getAttribute('data-type') || '' });
+        mobileNav.classList.remove('open');
+      });
+    });
+    Array.prototype.forEach.call(mobileNav.querySelectorAll('[data-brand]'), function (el) {
+      el.addEventListener('click', function (e) { e.preventDefault(); applyFilters({ brand: el.getAttribute('data-brand') }); mobileNav.classList.remove('open'); });
     });
     var saleBtn = mobileNav.querySelector('[data-sale]');
     if (saleBtn) saleBtn.addEventListener('click', function () { applyFilters({ saleOnly: true }); mobileNav.classList.remove('open'); });
