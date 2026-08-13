@@ -1866,7 +1866,7 @@ var BRAND_LOGOS = {
 
     var typeObj = TYPES.filter(function (ty) { return ty.value === p.type; })[0];
     var extraInfoHtml = '' +
-      '<div class="modal-extra-info">' +
+      '<div class="modal-extra-info open">' +
         '<button class="modal-extra-info-toggle" id="modal-extra-info-toggle" type="button">' + t('label_extra_info') + '<span class="mn-chevron">▾</span></button>' +
         '<div class="modal-extra-info-panel" id="modal-extra-info-panel">' +
           '<div class="modal-extra-info-row"><span>' + t('label_info_brand') + '</span><span>' + escapeHtml(p.brand_name) + '</span></div>' +
