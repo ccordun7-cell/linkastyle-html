@@ -224,9 +224,10 @@
   .product-image img { width: 100%; height: 100%; object-fit: contain; padding: 10px; }
   .product-image .placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 40px; }
   .discount-badge { position: absolute; top: 10px; left: 10px; background: var(--red); color: white; font-size: 12px; font-weight: 800; padding: 5px 9px; border-radius: 6px; letter-spacing: -.2px; }
-  .badge-tag { position: absolute; top: 10px; left: 10px; font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 6px; color: white; }
+  .badge-tag { position: absolute; top: 10px; left: 10px; font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 6px; color: white; white-space: nowrap; }
   .badge-barefoot { background: var(--green); }
-  .badge-premium { background: var(--navy); top: 40px; }
+  .badge-school { background: var(--orange); }
+  .badge-premium { background: var(--navy); }
   .wishlist-heart { position: absolute; top: 10px; right: 10px; background: none; border: none; width: 30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center; z-index: 2; color: var(--navy); filter: drop-shadow(0 1px 2px rgba(255,255,255,.9)); }
   .wishlist-heart.active { color: var(--red); }
   .out-of-stock-overlay { position: absolute; inset: 0; background: rgba(255,255,255,.75); display: flex; align-items: center; justify-content: center; }
@@ -462,8 +463,7 @@
     .product-sizes-row { font-size: 9px; margin-bottom: 3px; }
     .product-price { font-size: 13px; }
     .product-price-old { font-size: 10px; }
-    .discount-badge, .badge-tag { font-size: 9px; padding: 3px 6px; top: 6px; left: 6px; }
-    .badge-premium { top: 26px; }
+    .discount-badge, .badge-tag { font-size: 9px; padding: 3px 6px; left: 6px; }
     .wishlist-heart { width: 24px; height: 24px; font-size: 15px; top: 4px; right: 4px; }
     .out-of-stock-overlay span { font-size: 10px; padding: 4px 10px; }
 
@@ -1760,9 +1760,11 @@ var BRAND_LOGOS = {
       : '';
 
     var badgesHtml = '';
-    if (discountPercent) badgesHtml += '<span class="discount-badge">-' + discountPercent + '%</span>';
-    if (p.is_barefoot) badgesHtml += '<span class="badge-tag badge-barefoot" style="' + (discountPercent ? 'top:40px;' : '') + '">BAREFOOT</span>';
-    if (p.is_premium) badgesHtml += '<span class="badge-tag badge-premium">PREMIUM</span>';
+    var badgeTop = 10;
+    if (discountPercent) { badgesHtml += '<span class="discount-badge" style="top:' + badgeTop + 'px;">-' + discountPercent + '%</span>'; badgeTop += 30; }
+    if (p.category === 'school') { badgesHtml += '<span class="badge-tag badge-school" style="top:' + badgeTop + 'px;">🎒 ÎNAPOI LA ȘCOALĂ</span>'; badgeTop += 30; }
+    if (p.is_barefoot) { badgesHtml += '<span class="badge-tag badge-barefoot" style="top:' + badgeTop + 'px;">BAREFOOT</span>'; badgeTop += 30; }
+    if (p.is_premium) { badgesHtml += '<span class="badge-tag badge-premium" style="top:' + badgeTop + 'px;">PREMIUM</span>'; }
 
     return '' +
       '<div class="product-card" data-id="' + escapeHtml(p.id) + '">' +
