@@ -1456,7 +1456,7 @@ var BRAND_LOGOS = {
       '</div>';
     }).join('');
     Array.prototype.forEach.call(container.querySelectorAll('.category-tile'), function (tile) {
-      tile.addEventListener('click', function () { applyFilters({ category: tile.getAttribute('data-cat') }); });
+      tile.addEventListener('click', function () { openTypePicker(tile.getAttribute('data-cat')); });
     });
     loadCategoryTileImages();
   }
