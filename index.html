@@ -331,6 +331,7 @@
   .modal-trust-mini-item .icon { font-size: 22px; flex-shrink: 0; }
   .modal-trust-mini-item b { display: block; font-size: 14px; color: var(--navy); margin-bottom: 2px; }
   .modal-trust-mini-item p { font-size: 12.5px; color: var(--gray); margin: 0; }
+  .modal-trust-mobile-row { display: none; }
   .modal-share-btn { flex: 1; padding: 13px; border-radius: 12px; border: 1.5px solid #e0e4ea; background: white; color: var(--navy); font-weight: 700; font-size: 14px; font-family: var(--font-body); }
   .modal-share-btn.copied { border-color: var(--green); color: var(--green); }
   .recommended-section { margin-top: 60px; padding-top: 40px; border-top: 1px solid var(--light); }
@@ -475,6 +476,10 @@
     .product-page-grid { grid-template-columns: 1fr; gap: 24px; }
     .product-page-inner { margin-top: -42px; }
     .modal-trust-mini { display: none; }
+    .modal-trust-mobile-row { display: flex; justify-content: space-between; gap: 8px; background: var(--light); border-radius: 10px; padding: 10px 8px; margin: 10px 0; }
+    .modal-trust-mobile-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
+    .modal-trust-mobile-item .icon { font-size: 18px; }
+    .modal-trust-mobile-item span:last-child { font-size: 10.5px; font-weight: 700; color: var(--navy); line-height: 1.2; }
   }
 </style>
 </head>
@@ -1890,6 +1895,12 @@ var BRAND_LOGOS = {
         '<div class="modal-trust-mini-item"><span class="icon">🚚</span><div><b>' + t('trust2_title') + '</b><p>' + t('trust2_desc') + '</p></div></div>' +
         '<div class="modal-trust-mini-item"><span class="icon">🔄</span><div><b>' + t('trust3_title') + '</b><p>' + t('trust3_desc') + '</p></div></div>' +
       '</div>';
+    var modalTrustMobileHtml = '' +
+      '<div class="modal-trust-mobile-row">' +
+        '<div class="modal-trust-mobile-item"><span class="icon">🏠</span><span>' + t('trust1_title') + '</span></div>' +
+        '<div class="modal-trust-mobile-item"><span class="icon">🚚</span><span>' + t('trust2_title') + '</span></div>' +
+        '<div class="modal-trust-mobile-item"><span class="icon">🔄</span><span>' + t('trust3_title') + '</span></div>' +
+      '</div>';
     var sizesHtml = sizes.length === 0
       ? '<p style="font-size:13px;color:#999;">' + t('label_no_sizes') + '</p>'
       : '<div class="size-grid">' + sizes.map(function (s) {
@@ -1953,6 +1964,7 @@ var BRAND_LOGOS = {
             (p.is_sale && p.sale_price ? '<span class="modal-price-old">' + p.price + ' MDL</span>' : '') +
             (discountPercent ? '<span class="discount-badge" style="position:static;">-' + discountPercent + '%</span>' : '') + '</div>' +
           '<span class="modal-meta">' + (t(CATEGORY_LABEL_KEYS[p.category]) || '') + (p.is_barefoot ? ' · Barefoot' : '') + '</span>' +
+          modalTrustMobileHtml +
           (localizedDescription ? '<p class="modal-description">' + escapeHtml(localizedDescription) + '</p>' : '') +
           '<label class="size-label">' + t('label_choose_size') + '</label>' + sizesHtml +
           '<button class="add-to-cart-btn ' + btnState + '" id="add-to-cart-btn" ' + (modalSelectedSize ? '' : 'disabled') + '>' + btnLabel + '</button>' +
