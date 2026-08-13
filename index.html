@@ -306,6 +306,14 @@
 
   /* ===== Side panel (cart & wishlist) ===== */
   .side-overlay { position: fixed; inset: 0; z-index: 1100; display: none; }
+  .fullscreen-overlay { position: fixed; inset: 0; z-index: 1300; background: white; display: none; flex-direction: column; }
+  .fullscreen-overlay.open { display: flex; }
+  .fs-header { display: flex; align-items: center; gap: 10px; padding: 16px 16px; border-bottom: 1px solid #eee; }
+  .fs-header h2 { flex: 1; text-align: center; font-family: var(--font-body); font-size: 17px; font-weight: 800; color: var(--navy); margin: 0; }
+  .fs-back, .fs-close { background: none; border: none; font-size: 20px; color: var(--navy); cursor: pointer; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; }
+  .fs-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; }
+  .fs-row { display: block; width: 100%; text-align: left; padding: 16px 20px; font-family: var(--font-body); font-size: 15px; font-weight: 600; color: var(--navy); text-decoration: none; background: none; border: none; border-bottom: 1px solid #f2f2f2; }
+  .fs-row.fs-highlight { color: var(--sky-dark); font-weight: 700; }
   .side-overlay.open { display: block; }
   .side-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.5); }
   .side-panel { position: absolute; top: 0; right: 0; bottom: 0; width: 100%; max-width: 420px; background: white; display: flex; flex-direction: column; box-shadow: -4px 0 20px rgba(0,0,0,.1); }
@@ -685,16 +693,14 @@
   </div>
 </div>
 
-<!-- Type picker (opens when tapping a category quicklink: Fete/Băieți/Barefoot) -->
-<div class="side-overlay" id="type-picker-overlay">
-  <div class="side-backdrop" id="type-picker-backdrop"></div>
-  <div class="side-panel">
-    <div class="side-header">
-      <h2 id="type-picker-title">Fete</h2>
-      <button class="side-close" id="type-picker-close-btn">✕</button>
-    </div>
-    <div id="type-picker-content" style="flex:1; display:flex; flex-direction:column; overflow-y:auto;"></div>
+<!-- Category browser: full-screen category -> brand -> type flow -->
+<div class="fullscreen-overlay" id="category-browser-overlay">
+  <div class="fs-header">
+    <button class="fs-back" id="cb-back-btn" style="display:none;">←</button>
+    <h2 id="cb-title">Fete</h2>
+    <button class="fs-close" id="cb-close-btn">✕</button>
   </div>
+  <div class="fs-content" id="cb-content"></div>
 </div>
 
 <script>
@@ -1358,14 +1364,7 @@ var BRAND_LOGOS = {
     var mobileNav = document.getElementById('mobile-nav');
 
     var catsHtml = CATEGORIES.map(function (c) {
-      var typeLinks = TYPES.map(function (ty) {
-        return '<a href="#" data-cat="' + c.value + '" data-type="' + ty.value + '">' + t(ty.labelKey) + '</a>';
-      }).join('');
-      return '' +
-        '<div class="mn-section">' +
-          '<button class="mn-cat-toggle" type="button">' + t(c.labelKey) + '<span class="mn-chevron">▾</span></button>' +
-          '<div class="mn-subpanel">' + typeLinks + '<a href="#" class="mn-viewall" data-cat="' + c.value + '">' + t('nav_view_all') + '</a></div>' +
-        '</div>';
+      return '<button class="mn-flat-btn" data-opencat="' + c.value + '" type="button">' + t(c.labelKey) + '</button>';
     }).join('');
 
     var brandLinksHtml = brands.map(function (b) {
@@ -1391,11 +1390,10 @@ var BRAND_LOGOS = {
         if (!wasOpen) section.classList.add('open');
       });
     });
-    Array.prototype.forEach.call(mobileNav.querySelectorAll('[data-cat]'), function (el) {
-      el.addEventListener('click', function (e) {
-        e.preventDefault();
-        applyFilters({ category: el.getAttribute('data-cat'), type: el.getAttribute('data-type') || '' });
+    Array.prototype.forEach.call(mobileNav.querySelectorAll('[data-opencat]'), function (btn) {
+      btn.addEventListener('click', function () {
         mobileNav.classList.remove('open');
+        openCategoryBrowser(btn.getAttribute('data-opencat'));
       });
     });
     Array.prototype.forEach.call(mobileNav.querySelectorAll('[data-brand]'), function (el) {
@@ -1456,7 +1454,7 @@ var BRAND_LOGOS = {
       '</div>';
     }).join('');
     Array.prototype.forEach.call(container.querySelectorAll('.category-tile'), function (tile) {
-      tile.addEventListener('click', function () { openTypePicker(tile.getAttribute('data-cat')); });
+      tile.addEventListener('click', function () { openCategoryBrowser(tile.getAttribute('data-cat')); });
     });
     loadCategoryTileImages();
   }
@@ -1495,32 +1493,76 @@ var BRAND_LOGOS = {
     '</div>';
     el.innerHTML = catsHtml + badgesHtml;
     Array.prototype.forEach.call(el.querySelectorAll('.hero-quick-cat'), function (btn) {
-      btn.addEventListener('click', function () { openTypePicker(btn.getAttribute('data-cat')); });
+      btn.addEventListener('click', function () { openCategoryBrowser(btn.getAttribute('data-cat')); });
     });
   }
 
-  function openTypePicker(categoryValue) {
-    var cat = CATEGORIES.filter(function (c) { return c.value === categoryValue; })[0];
+  var categoryBrowserState = { category: null, brand: null, step: 'brand' };
+
+  function openCategoryBrowser(categoryValue) {
+    categoryBrowserState = { category: categoryValue, brand: null, step: 'brand' };
+    renderCategoryBrowserStep();
+    document.getElementById('category-browser-overlay').classList.add('open');
+  }
+
+  function closeCategoryBrowser() {
+    document.getElementById('category-browser-overlay').classList.remove('open');
+  }
+
+  function renderCategoryBrowserStep() {
+    var cat = CATEGORIES.filter(function (c) { return c.value === categoryBrowserState.category; })[0];
     if (!cat) return;
-    document.getElementById('type-picker-title').textContent = t(cat.labelKey);
-    var typeLinksHtml = TYPES.map(function (ty) {
-      return '<a href="#" data-cat="' + categoryValue + '" data-type="' + ty.value + '">' + t(ty.labelKey) + '</a>';
-    }).join('');
-    var content = document.getElementById('type-picker-content');
-    content.innerHTML = '<div class="mn-subpanel" style="display:flex;">' + typeLinksHtml +
-      '<a href="#" class="mn-viewall" data-cat="' + categoryValue + '">' + t('nav_view_all') + '</a></div>';
-    Array.prototype.forEach.call(content.querySelectorAll('[data-cat]'), function (elLink) {
-      elLink.addEventListener('click', function (e) {
-        e.preventDefault();
-        applyFilters({ category: elLink.getAttribute('data-cat'), type: elLink.getAttribute('data-type') || '' });
-        closeTypePicker();
-      });
-    });
-    document.getElementById('type-picker-overlay').classList.add('open');
-  }
+    var backBtn = document.getElementById('cb-back-btn');
+    var titleEl = document.getElementById('cb-title');
+    var content = document.getElementById('cb-content');
 
-  function closeTypePicker() {
-    document.getElementById('type-picker-overlay').classList.remove('open');
+    if (categoryBrowserState.step === 'brand') {
+      backBtn.style.display = 'none';
+      titleEl.textContent = t(cat.labelKey);
+      var allCatHtml = '<a href="#" class="fs-row fs-highlight" data-allcat="1">' + t('nav_view_all') + '</a>';
+      var brandRowsHtml = brands.map(function (b) {
+        return '<a href="#" class="fs-row" data-brand="' + escapeHtml(b.slug) + '">' + escapeHtml(b.name) + '</a>';
+      }).join('');
+      content.innerHTML = allCatHtml + brandRowsHtml;
+
+      var allCatEl = content.querySelector('[data-allcat]');
+      if (allCatEl) allCatEl.addEventListener('click', function (e) {
+        e.preventDefault();
+        applyFilters({ category: categoryBrowserState.category });
+        closeCategoryBrowser();
+      });
+      Array.prototype.forEach.call(content.querySelectorAll('[data-brand]'), function (el) {
+        el.addEventListener('click', function (e) {
+          e.preventDefault();
+          categoryBrowserState.brand = el.getAttribute('data-brand');
+          categoryBrowserState.step = 'type';
+          renderCategoryBrowserStep();
+        });
+      });
+    } else if (categoryBrowserState.step === 'type') {
+      backBtn.style.display = 'flex';
+      var brandObj = brands.filter(function (b) { return b.slug === categoryBrowserState.brand; })[0];
+      titleEl.textContent = brandObj ? brandObj.name : '';
+      var allBrandHtml = '<a href="#" class="fs-row fs-highlight" data-allbrand="1">' + t('nav_view_all') + '</a>';
+      var typeRowsHtml = TYPES.map(function (ty) {
+        return '<a href="#" class="fs-row" data-type="' + ty.value + '">' + t(ty.labelKey) + '</a>';
+      }).join('');
+      content.innerHTML = allBrandHtml + typeRowsHtml;
+
+      var allBrandEl = content.querySelector('[data-allbrand]');
+      if (allBrandEl) allBrandEl.addEventListener('click', function (e) {
+        e.preventDefault();
+        applyFilters({ category: categoryBrowserState.category, brand: categoryBrowserState.brand });
+        closeCategoryBrowser();
+      });
+      Array.prototype.forEach.call(content.querySelectorAll('[data-type]'), function (el) {
+        el.addEventListener('click', function (e) {
+          e.preventDefault();
+          applyFilters({ category: categoryBrowserState.category, brand: categoryBrowserState.brand, type: el.getAttribute('data-type') });
+          closeCategoryBrowser();
+        });
+      });
+    }
   }
 
   function renderHeroSlider() {
@@ -2193,8 +2235,12 @@ var BRAND_LOGOS = {
     document.getElementById('wishlist-open-link').addEventListener('click', function (e) { e.preventDefault(); openWishlist(); });
     document.getElementById('wishlist-close-btn').addEventListener('click', closeWishlist);
     document.getElementById('wishlist-backdrop').addEventListener('click', closeWishlist);
-    document.getElementById('type-picker-close-btn').addEventListener('click', closeTypePicker);
-    document.getElementById('type-picker-backdrop').addEventListener('click', closeTypePicker);
+    document.getElementById('cb-close-btn').addEventListener('click', closeCategoryBrowser);
+    document.getElementById('cb-back-btn').addEventListener('click', function () {
+      categoryBrowserState.step = 'brand';
+      categoryBrowserState.brand = null;
+      renderCategoryBrowserStep();
+    });
 
     document.getElementById('search-open-btn').addEventListener('click', openSearchOverlay);
     document.getElementById('search-close-btn').addEventListener('click', closeSearchOverlay);
