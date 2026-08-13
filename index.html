@@ -310,6 +310,14 @@
   .modal-phone-order-label { font-size: 12px; font-weight: 700; color: var(--gray); text-transform: uppercase; letter-spacing: .03em; margin-bottom: 10px; }
   .modal-phone-order-row { display: flex; gap: 10px; align-items: center; }
   .phone-order-btn { flex: 1; background: var(--orange); color: white; text-decoration: none; text-align: center; padding: 11px 14px; border-radius: 10px; font-weight: 700; font-size: 14px; }
+  .promo-code-row { display: flex; gap: 8px; }
+  .promo-code-row input { flex: 1; }
+  .promo-apply-btn { background: var(--orange); color: white; border: none; border-radius: 8px; padding: 0 18px; font-weight: 700; font-size: 13px; white-space: nowrap; cursor: pointer; font-family: var(--font-body); }
+  .promo-apply-btn:disabled { opacity: .6; cursor: default; }
+  .promo-message { font-size: 12px; margin-top: 6px; }
+  .promo-message.promo-success { color: var(--orange); font-weight: 700; }
+  .promo-message.promo-error { color: #c62828; }
+  .promo-discount-row span:last-child { color: var(--orange); font-weight: 800; }
   .phone-order-icon { width: 42px; height: 42px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 10px; background: white; border: 1.5px solid #e0e4ea; color: var(--navy); }
   .modal-extra-info { margin-top: 14px; border-top: 1px solid #eee; }
   .modal-extra-info-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; background: none; border: none; padding: 14px 0; font-size: 14px; font-weight: 700; color: var(--navy); font-family: var(--font-body); cursor: pointer; }
@@ -763,6 +771,7 @@
   var SUPABASE_URL = 'https://vikfoygfauwxsepbsxxh.supabase.co';
   var SUPABASE_ANON_KEY = 'sb_publishable_cK3IPqMO4rWxTRXkzlty2Q_uQWzOHaI';
   var ORDER_API_URL = 'https://linka-style.vercel.app/api/comenzi';
+  var PROMO_VALIDATE_URL = 'https://linka-style.vercel.app/api/promocoduri/validare';
   var NEWSLETTER_API_URL = 'https://linka-style.vercel.app/api/newsletter';
   var FREE_DELIVERY_THRESHOLD = 1000;
   var DELIVERY_COST = 80;
@@ -886,6 +895,11 @@
       checkout_payment_label: 'Metoda de plată',
       checkout_payment_cash: 'Ramburs la livrare (cash)',
       checkout_payment_transfer: 'Transfer bancar',
+      checkout_promo_label: 'Cod promo (opțional)',
+      checkout_promo_placeholder: 'Introdu codul',
+      checkout_promo_apply: 'Aplică',
+      checkout_promo_success: 'Cod aplicat! Reducere: -{amount} MDL',
+      checkout_promo_error: 'Cod promo invalid.',
       checkout_notes_label: 'Observații (opțional)',
       checkout_notes_placeholder: 'Detalii suplimentare despre livrare',
       checkout_total_label: 'Total de plată',
@@ -1044,6 +1058,11 @@
       checkout_payment_label: 'Способ оплаты',
       checkout_payment_cash: 'Наложенным платежом (наличные)',
       checkout_payment_transfer: 'Банковский перевод',
+      checkout_promo_label: 'Промокод (необязательно)',
+      checkout_promo_placeholder: 'Введите код',
+      checkout_promo_apply: 'Применить',
+      checkout_promo_success: 'Код применён! Скидка: -{amount} MDL',
+      checkout_promo_error: 'Неверный промокод.',
       checkout_notes_label: 'Комментарии (необязательно)',
       checkout_notes_placeholder: 'Дополнительная информация о доставке',
       checkout_total_label: 'Итого к оплате',
@@ -1196,6 +1215,7 @@ var BRAND_LOGOS = {
   var brands = [];
   var filters = { category: '', type: '', brand: '', search: '', sort: 'newest', saleOnly: false, isPremium: false };
   var cart = [];
+  var appliedPromo = null;
   var wishlist = [];
   var activeProduct = null;
   var modalSelectedSize = null;
@@ -1257,7 +1277,9 @@ var BRAND_LOGOS = {
     var totalItems = 0, subtotal = 0;
     cart.forEach(function (i) { totalItems += i.quantity; subtotal += i.price * i.quantity; });
     var deliveryCost = subtotal === 0 || subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_COST;
-    return { totalItems: totalItems, subtotal: subtotal, deliveryCost: deliveryCost, total: subtotal + deliveryCost };
+    var discountAmount = appliedPromo ? Math.min(appliedPromo.discount_amount, subtotal) : 0;
+    var total = Math.max(0, subtotal - discountAmount) + deliveryCost;
+    return { totalItems: totalItems, subtotal: subtotal, deliveryCost: deliveryCost, discountAmount: discountAmount, total: total };
   }
   function addToCart(item) {
     var existing = cart.find(function (i) { return i.product_id === item.product_id && i.size === item.size; });
@@ -2130,19 +2152,91 @@ var BRAND_LOGOS = {
         '<div class="form-group"><label>' + t('checkout_address_label') + '</label><textarea class="form-control" id="f-address" rows="2" placeholder="' + t('checkout_address_placeholder') + '" required></textarea></div>' +
         '<div class="form-group"><label>' + t('checkout_payment_label') + '</label><select class="form-control" id="f-payment">' +
           '<option value="ramburs">' + t('checkout_payment_cash') + '</option><option value="transfer">' + t('checkout_payment_transfer') + '</option></select></div>' +
+        '<div class="form-group"><label>' + t('checkout_promo_label') + '</label>' +
+          '<div class="promo-code-row">' +
+            '<input class="form-control" id="f-promo" placeholder="' + t('checkout_promo_placeholder') + '" style="text-transform:uppercase;">' +
+            '<button type="button" class="promo-apply-btn" id="promo-apply-btn">' + t('checkout_promo_apply') + '</button>' +
+          '</div>' +
+          '<p class="promo-message" id="promo-message" style="display:none;"></p>' +
+        '</div>' +
         '<div class="form-group"><label>' + t('checkout_notes_label') + '</label><textarea class="form-control" id="f-notes" rows="2" placeholder="' + t('checkout_notes_placeholder') + '"></textarea></div>' +
         '<p class="form-error" id="checkout-error" style="display:none;"></p>' +
       '</div>' +
       '<div class="cart-footer">' +
-        '<div class="cart-total-row"><span>' + t('checkout_total_label') + '</span><span>' + ct.total + ' MDL</span></div>' +
+        '<div class="cart-total-row"><span>' + t('receipt_subtotal') + '</span><span id="checkout-subtotal-val">' + ct.subtotal + ' MDL</span></div>' +
+        '<div class="cart-total-row promo-discount-row" id="checkout-discount-row" style="' + (ct.discountAmount > 0 ? '' : 'display:none;') + '"><span>' + t('receipt_discount') + '</span><span id="checkout-discount-val">-' + ct.discountAmount + ' MDL</span></div>' +
+        '<div class="cart-total-row"><span>' + t('receipt_delivery') + '</span><span id="checkout-delivery-val">' + (ct.deliveryCost === 0 ? t('receipt_free') : ct.deliveryCost + ' MDL') + '</span></div>' +
+        '<div class="cart-total-row"><span>' + t('checkout_total_label') + '</span><span id="checkout-total-val">' + ct.total + ' MDL</span></div>' +
         '<button type="submit" class="btn-block btn-green" id="submit-order-btn">' + t('checkout_submit') + '</button>' +
       '</div>' +
     '</form>';
   }
 
+  function updateCheckoutTotals() {
+    var ct = cartTotals();
+    var subtotalEl = document.getElementById('checkout-subtotal-val');
+    var deliveryEl = document.getElementById('checkout-delivery-val');
+    var totalEl = document.getElementById('checkout-total-val');
+    var discountRow = document.getElementById('checkout-discount-row');
+    var discountEl = document.getElementById('checkout-discount-val');
+    if (!subtotalEl) return;
+    subtotalEl.textContent = ct.subtotal + ' MDL';
+    deliveryEl.textContent = ct.deliveryCost === 0 ? t('receipt_free') : ct.deliveryCost + ' MDL';
+    totalEl.textContent = ct.total + ' MDL';
+    if (ct.discountAmount > 0) {
+      discountRow.style.display = 'flex';
+      discountEl.textContent = '-' + ct.discountAmount + ' MDL';
+    } else {
+      discountRow.style.display = 'none';
+    }
+  }
+
+  function applyPromoCode() {
+    var input = document.getElementById('f-promo');
+    var code = input.value.trim().toUpperCase();
+    var msgEl = document.getElementById('promo-message');
+    var btn = document.getElementById('promo-apply-btn');
+    if (!code) return;
+
+    var originalBtnText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = '...';
+
+    fetch(PROMO_VALIDATE_URL, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: code, subtotal: cartTotals().subtotal })
+    })
+      .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
+      .then(function (res) {
+        if (res.ok && res.data.valid) {
+          appliedPromo = { code: res.data.code, discount_amount: res.data.discount_amount };
+          msgEl.textContent = t('checkout_promo_success').replace('{amount}', res.data.discount_amount);
+          msgEl.className = 'promo-message promo-success';
+        } else {
+          appliedPromo = null;
+          msgEl.textContent = (res.data && res.data.error) || t('checkout_promo_error');
+          msgEl.className = 'promo-message promo-error';
+        }
+        msgEl.style.display = 'block';
+        updateCheckoutTotals();
+      })
+      .catch(function () {
+        appliedPromo = null;
+        msgEl.textContent = t('checkout_promo_error');
+        msgEl.className = 'promo-message promo-error';
+        msgEl.style.display = 'block';
+        updateCheckoutTotals();
+      })
+      .finally(function () {
+        btn.disabled = false;
+        btn.textContent = originalBtnText;
+      });
+  }
+
   function bindCheckoutViewEvents() {
     document.getElementById('back-to-cart-btn').addEventListener('click', function () { cartView = 'cart'; renderCartPanel(); });
     document.getElementById('checkout-form').addEventListener('submit', function (e) { e.preventDefault(); submitOrder(); });
+    document.getElementById('promo-apply-btn').addEventListener('click', applyPromoCode);
   }
 
   function submitOrder() {
@@ -2167,7 +2261,7 @@ var BRAND_LOGOS = {
 
     fetch(ORDER_API_URL, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ customer_name: name, customer_phone: phone, customer_email: email, delivery_address: address, delivery_city: city, payment_method: payment, notes: notes, items: cart })
+      body: JSON.stringify({ customer_name: name, customer_phone: phone, customer_email: email, delivery_address: address, delivery_city: city, payment_method: payment, notes: notes, items: cart, promo_code: appliedPromo ? appliedPromo.code : undefined })
     })
       .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
       .then(function (res) {
@@ -2187,6 +2281,7 @@ var BRAND_LOGOS = {
           paymentMethod: payment
         };
         cart = []; saveCart(); updateCartBadge();
+        appliedPromo = null;
         window._lastOrderNumber = res.data.order_number;
         cartView = 'success'; renderCartPanel();
       })
