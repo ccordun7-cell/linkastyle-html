@@ -1087,6 +1087,19 @@
     return p.description;
   }
 
+  // Extrage un cod de produs scris in descriere sub forma "#cod" (ex: #181120-C785),
+  // ca alternativa simpla la campul product_code din admin. Intoarce codul gasit
+  // si textul descrierii curatat de acel cod (fara sa mai apara vizibil de doua ori).
+  function extractProductCode(description) {
+    if (!description) return { code: '', text: description };
+    var match = description.match(/#([A-Za-z0-9._-]+)/);
+    if (!match) return { code: '', text: description };
+    var code = match[1].replace(/[.,;:]+$/, '');
+    var cleaned = (description.slice(0, match.index) + description.slice(match.index + match[0].length))
+      .replace(/[ \t]{2,}/g, ' ').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+    return { code: code, text: cleaned };
+  }
+
   function applyStaticTranslations() {
     Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), function (el) {
       el.textContent = t(el.getAttribute('data-i18n'));
@@ -1839,7 +1852,9 @@ var BRAND_LOGOS = {
     var selectedSizeData = sizes.find(function (s) { return s.size === modalSelectedSize; });
     var wished = isWishlisted(p.id);
     var localizedName = getLocalizedName(p);
-    var localizedDescription = getLocalizedDescription(p);
+    var descExtract = extractProductCode(getLocalizedDescription(p));
+    var localizedDescription = descExtract.text;
+    var displayProductCode = p.product_code || descExtract.code;
 
     var img = images[modalActiveImage];
     var imageHtml = img ? '<img src="' + escapeHtml(img.url) + '" alt="' + escapeHtml(localizedName) + '">' : '<div class="placeholder">👟</div>';
@@ -1870,7 +1885,7 @@ var BRAND_LOGOS = {
         '<button class="modal-extra-info-toggle" id="modal-extra-info-toggle" type="button">' + t('label_extra_info') + '<span class="mn-chevron">▾</span></button>' +
         '<div class="modal-extra-info-panel" id="modal-extra-info-panel">' +
           '<div class="modal-extra-info-row"><span>' + t('label_info_brand') + '</span><span>' + escapeHtml(p.brand_name) + '</span></div>' +
-          (p.product_code ? '<div class="modal-extra-info-row"><span>' + t('label_info_code') + '</span><span>' + escapeHtml(p.product_code) + '</span></div>' : '') +
+          (displayProductCode ? '<div class="modal-extra-info-row"><span>' + t('label_info_code') + '</span><span>' + escapeHtml(displayProductCode) + '</span></div>' : '') +
           (typeObj ? '<div class="modal-extra-info-row"><span>' + t('label_info_type') + '</span><span>' + t(typeObj.labelKey) + '</span></div>' : '') +
           '<div class="modal-extra-info-row"><span>' + t('label_info_gender') + '</span><span>' + (t(CATEGORY_LABEL_KEYS[p.category]) || '') + '</span></div>' +
           (sizes.length ? '<div class="modal-extra-info-row"><span>' + t('label_info_sizes') + '</span><span>' + sizes.map(function (s) { return s.size; }).join(', ') + '</span></div>' : '') +
