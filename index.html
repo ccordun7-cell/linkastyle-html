@@ -300,6 +300,20 @@
   .modal-wishlist-btn { flex: 1; padding: 13px; border-radius: 12px; border: 1.5px solid #e0e4ea; background: white; color: var(--navy); font-weight: 700; font-size: 14px; font-family: var(--font-body); }
   .modal-wishlist-btn.active { border-color: var(--red); color: var(--red); }
   .modal-secondary-actions { display: flex; gap: 10px; margin-top: 10px; }
+  .modal-phone-order { margin-top: 18px; background: var(--light); border-radius: 12px; padding: 14px 16px; }
+  .modal-phone-order-label { font-size: 12px; font-weight: 700; color: var(--gray); text-transform: uppercase; letter-spacing: .03em; margin-bottom: 10px; }
+  .modal-phone-order-row { display: flex; gap: 10px; align-items: center; }
+  .phone-order-btn { flex: 1; background: var(--navy); color: white; text-decoration: none; text-align: center; padding: 11px 14px; border-radius: 10px; font-weight: 700; font-size: 14px; }
+  .phone-order-icon { width: 42px; height: 42px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 10px; background: white; border: 1.5px solid #e0e4ea; color: var(--navy); }
+  .modal-extra-info { margin-top: 14px; border-top: 1px solid #eee; }
+  .modal-extra-info-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; background: none; border: none; padding: 14px 0; font-size: 14px; font-weight: 700; color: var(--navy); font-family: var(--font-body); cursor: pointer; }
+  .modal-extra-info-toggle .mn-chevron { font-size: 11px; color: var(--gray); transition: transform .2s ease; }
+  .modal-extra-info.open .modal-extra-info-toggle .mn-chevron { transform: rotate(180deg); }
+  .modal-extra-info-panel { display: none; flex-direction: column; padding-bottom: 12px; }
+  .modal-extra-info.open .modal-extra-info-panel { display: flex; }
+  .modal-extra-info-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; border-bottom: 1px solid #f5f5f5; }
+  .modal-extra-info-row span:first-child { color: var(--gray); }
+  .modal-extra-info-row span:last-child { color: var(--navy); font-weight: 600; text-align: right; }
   .modal-share-btn { flex: 1; padding: 13px; border-radius: 12px; border: 1.5px solid #e0e4ea; background: white; color: var(--navy); font-weight: 700; font-size: 14px; font-family: var(--font-body); }
   .modal-share-btn.copied { border-color: var(--green); color: var(--green); }
   .recommended-section { margin-top: 60px; padding-top: 40px; border-top: 1px solid var(--light); }
@@ -795,6 +809,12 @@
       label_choose_size: 'Alege mărimea (EU)',
       label_no_sizes: 'Nu sunt mărimi disponibile momentan.',
       label_size_length_note: 'Mărimea aleasă corespunde la aproximativ {cm} cm lungime interior talpă.',
+      label_order_by_phone: 'Comandă la numărul de telefon',
+      label_extra_info: 'Informații suplimentare',
+      label_info_gender: 'Gen',
+      label_info_type: 'Tip',
+      label_info_brand: 'Brand',
+      label_info_sizes: 'Mărimi disponibile',
       btn_add_to_cart: 'Adaugă în coș',
       btn_choose_size_first: 'Alege mai întâi mărimea',
       btn_added_to_cart: '✓ Adăugat în coș',
@@ -942,6 +962,12 @@
       label_choose_size: 'Выберите размер (EU)',
       label_no_sizes: 'Сейчас нет доступных размеров.',
       label_size_length_note: 'Выбранный размер соответствует примерно {cm} см длины стельки.',
+      label_order_by_phone: 'Заказать по телефону',
+      label_extra_info: 'Дополнительная информация',
+      label_info_gender: 'Пол',
+      label_info_type: 'Тип',
+      label_info_brand: 'Бренд',
+      label_info_sizes: 'Доступные размеры',
       btn_add_to_cart: 'Добавить в корзину',
       btn_choose_size_first: 'Сначала выберите размер',
       btn_added_to_cart: '✓ Добавлено в корзину',
@@ -1794,6 +1820,32 @@ var BRAND_LOGOS = {
     var btnState = modalSelectedSize ? 'ready' : '';
     var btnLabel = modalSelectedSize ? t('btn_add_to_cart') : t('btn_choose_size_first');
 
+    var typeObj = TYPES.filter(function (ty) { return ty.value === p.type; })[0];
+    var extraInfoHtml = '' +
+      '<div class="modal-extra-info">' +
+        '<button class="modal-extra-info-toggle" id="modal-extra-info-toggle" type="button">' + t('label_extra_info') + '<span class="mn-chevron">▾</span></button>' +
+        '<div class="modal-extra-info-panel" id="modal-extra-info-panel">' +
+          '<div class="modal-extra-info-row"><span>' + t('label_info_brand') + '</span><span>' + escapeHtml(p.brand_name) + '</span></div>' +
+          (typeObj ? '<div class="modal-extra-info-row"><span>' + t('label_info_type') + '</span><span>' + t(typeObj.labelKey) + '</span></div>' : '') +
+          '<div class="modal-extra-info-row"><span>' + t('label_info_gender') + '</span><span>' + (t(CATEGORY_LABEL_KEYS[p.category]) || '') + '</span></div>' +
+          (sizes.length ? '<div class="modal-extra-info-row"><span>' + t('label_info_sizes') + '</span><span>' + sizes.map(function (s) { return s.size; }).join(', ') + '</span></div>' : '') +
+        '</div>' +
+      '</div>';
+
+    var phoneOrderHtml = '' +
+      '<div class="modal-phone-order">' +
+        '<p class="modal-phone-order-label">' + t('label_order_by_phone') + '</p>' +
+        '<div class="modal-phone-order-row">' +
+          '<a class="phone-order-btn" href="tel:+37361299950">📞 061 299 950</a>' +
+          '<a class="phone-order-icon" href="https://wa.me/37361299950" target="_blank" rel="noopener" aria-label="WhatsApp">' +
+            '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.2h.01c5.46 0 9.9-4.45 9.9-9.91C21.96 6.45 17.5 2 12.04 2zm5.83 14.03c-.24.68-1.4 1.32-1.93 1.4-.5.08-1.12.11-1.8-.11-.42-.13-.95-.3-1.65-.6-2.9-1.25-4.79-4.17-4.94-4.36-.14-.2-1.18-1.57-1.18-3 0-1.42.75-2.12 1.01-2.41.27-.29.58-.36.78-.36.19 0 .39 0 .56.01.18.01.42-.07.66.5.24.58.83 2 .9 2.15.07.14.12.31.02.5-.09.19-.14.31-.28.48-.14.16-.29.36-.42.49-.14.14-.28.29-.12.57.16.28.72 1.19 1.55 1.93 1.06.95 1.96 1.24 2.24 1.38.28.14.44.12.6-.07.16-.19.68-.79.86-1.06.18-.28.36-.23.6-.14.24.09 1.53.72 1.79.85.26.14.44.2.5.31.06.11.06.65-.18 1.33z"/></svg>' +
+          '</a>' +
+          '<a class="phone-order-icon" href="viber://chat?number=%2B37361299950" aria-label="Viber">' +
+            '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12.05 2c-3.2 0-9.4.9-9.4 8.8 0 4.5 2.2 6.9 4.3 7.8v3l3.2-2.1c.6.1 1.3.1 1.9.1 3.2 0 9.4-.9 9.4-8.8S15.25 2 12.05 2zm4.4 11.3c-.15.4-.85 1-1.3 1.1-.3.08-.7.13-2.2-.5-1.85-.75-3.05-2.6-3.15-2.7-.1-.15-.75-1-.75-1.9s.45-1.35.6-1.55c.15-.2.35-.25.5-.25h.35c.15 0 .3-.03.45.35.15.4.55 1.35.6 1.45.05.1.08.2 0 .35-.08.15-.13.25-.25.4-.1.15-.25.3-.35.4-.1.1-.2.2-.1.4.1.2.5.85 1.05 1.35.7.65 1.3.85 1.5.95.2.1.3.08.4-.05.1-.15.5-.55.6-.75.15-.2.25-.15.4-.1.15.05 1 .5 1.2.6.2.1.3.15.35.2.05.1.05.4-.1.75z"/></svg>' +
+          '</a>' +
+        '</div>' +
+      '</div>';
+
     var container = document.getElementById('product-modal-content');
     container.innerHTML = '' +
       '<div class="product-page-grid">' +
@@ -1814,6 +1866,8 @@ var BRAND_LOGOS = {
           '<button class="modal-wishlist-btn ' + (wished ? 'active' : '') + '" id="modal-wishlist-btn">' + (wished ? '♥ ' : '♡ ') + t('btn_favorites') + '</button>' +
           '<button class="modal-share-btn" id="modal-share-btn">↗ ' + t('btn_share') + '</button>' +
         '</div>' +
+        phoneOrderHtml +
+        extraInfoHtml +
         '</div>' +
       '</div>' +
       '<div class="recommended-section">' +
@@ -1823,6 +1877,11 @@ var BRAND_LOGOS = {
           '<div class="carousel-dots" id="recommended-dots"></div>' +
         '</div>' +
       '</div>';
+
+    var extraInfoToggle = document.getElementById('modal-extra-info-toggle');
+    if (extraInfoToggle) extraInfoToggle.addEventListener('click', function () {
+      extraInfoToggle.parentElement.classList.toggle('open');
+    });
 
     document.getElementById('modal-wishlist-btn').addEventListener('click', function () {
       toggleWishlist(p); renderProductModal();
