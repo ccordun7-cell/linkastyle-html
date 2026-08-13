@@ -202,6 +202,11 @@
 
   /* ===== Product grid & cards ===== */
   main.catalog-section { max-width: 1240px; margin: 0 auto; padding: 36px 20px; }
+  .sale-section-wrap { background: linear-gradient(135deg, #fff4ee, #ffe6d9); border-top: 2px solid var(--orange); border-bottom: 2px solid var(--orange); }
+  .sale-section-wrap main.catalog-section { padding-top: 30px; padding-bottom: 30px; }
+  .sale-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .sale-section-header .section-title { color: var(--orange); margin-bottom: 0; }
+  .sale-viewall { color: var(--orange); font-weight: 700; font-size: 14px; text-decoration: none; white-space: nowrap; }
   .product-carousel-wrap { position: relative; }
   .product-carousel { display: flex; gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; scrollbar-width: none; }
   .product-carousel::-webkit-scrollbar { display: none; }
@@ -541,6 +546,22 @@
 <!-- Category tiles -->
 <div class="category-tiles" id="category-tiles"></div>
 
+<!-- Reduceri — sectiune evidentiata -->
+<div class="sale-section-wrap" id="sale-section-wrap" style="display:none;">
+  <main class="catalog-section sale-section">
+    <div class="sale-section-header">
+      <h2 class="section-title">🔥 <span data-i18n="section_sale">Reduceri</span></h2>
+      <a href="#" id="sale-section-viewall" class="sale-viewall" data-i18n="sale_view_all">Vezi toate →</a>
+    </div>
+    <div class="product-carousel-wrap">
+      <div class="product-carousel" id="sale-carousel">
+        <div class="loading-state"><span>🔥</span><span data-i18n="loading">Se încarcă...</span></div>
+      </div>
+      <div class="carousel-dots" id="sale-dots"></div>
+    </div>
+  </main>
+</div>
+
 <!-- Top vânzări carousel -->
 <main class="catalog-section">
   <h2 class="section-title" data-i18n="section_bestsellers">Top vânzări</h2>
@@ -772,6 +793,8 @@
       hero4_title: 'Reduceri de sezon — până la 30%',
       hero4_cta: 'Vezi reducerile',
       section_bestsellers: 'Top vânzări',
+      section_sale: 'Reduceri',
+      sale_view_all: 'Vezi toate →',
       section_all_products: 'Toate produsele',
       section_school: 'Pregătiți de școală',
       section_recommended: 'Recomandate pentru tine',
@@ -814,6 +837,7 @@
       label_info_gender: 'Gen',
       label_info_type: 'Tip',
       label_info_brand: 'Brand',
+      label_info_code: 'Cod produs',
       label_info_sizes: 'Mărimi disponibile',
       btn_add_to_cart: 'Adaugă în coș',
       btn_choose_size_first: 'Alege mai întâi mărimea',
@@ -925,6 +949,8 @@
       hero4_title: 'Сезонные скидки — до 30%',
       hero4_cta: 'Смотреть скидки',
       section_bestsellers: 'Топ продаж',
+      section_sale: 'Скидки',
+      sale_view_all: 'Смотреть все →',
       section_all_products: 'Все товары',
       section_school: 'Готовимся к школе',
       section_recommended: 'Рекомендуем вам',
@@ -967,6 +993,7 @@
       label_info_gender: 'Пол',
       label_info_type: 'Тип',
       label_info_brand: 'Бренд',
+      label_info_code: 'Код товара',
       label_info_sizes: 'Доступные размеры',
       btn_add_to_cart: 'Добавить в корзину',
       btn_choose_size_first: 'Сначала выберите размер',
@@ -1092,6 +1119,7 @@
     renderBrandFilter();
     renderProductGrid();
     loadBestsellers();
+    loadSaleSection();
     loadSchoolSection();
     if (document.getElementById('cart-overlay').classList.contains('open')) renderCartPanel();
     if (document.getElementById('wishlist-overlay').classList.contains('open')) renderWishlistPanel();
@@ -1311,6 +1339,22 @@ var BRAND_LOGOS = {
       .catch(function () {
         document.getElementById('bestsellers-carousel').innerHTML = '<div class="empty-state"><span>⚠️</span>' + t('error_loading') + '</div>';
       });
+  }
+
+  function loadSaleSection() {
+    var wrap = document.getElementById('sale-section-wrap');
+    fetch(buildProductsUrl({ saleOnly: true }, '&limit=10'), { headers: supabaseHeaders() })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var list = Array.isArray(data) ? data : [];
+        if (!list.length) { wrap.style.display = 'none'; return; }
+        wrap.style.display = '';
+        var track = document.getElementById('sale-carousel');
+        track.innerHTML = list.map(productCardHtml).join('');
+        bindProductCardEvents(track);
+        setupCarousel('sale-carousel', 'sale-dots', list);
+      })
+      .catch(function () { wrap.style.display = 'none'; });
   }
 
   function setupCarousel(trackId, dotsId, list) {
@@ -1826,6 +1870,7 @@ var BRAND_LOGOS = {
         '<button class="modal-extra-info-toggle" id="modal-extra-info-toggle" type="button">' + t('label_extra_info') + '<span class="mn-chevron">▾</span></button>' +
         '<div class="modal-extra-info-panel" id="modal-extra-info-panel">' +
           '<div class="modal-extra-info-row"><span>' + t('label_info_brand') + '</span><span>' + escapeHtml(p.brand_name) + '</span></div>' +
+          (p.product_code ? '<div class="modal-extra-info-row"><span>' + t('label_info_code') + '</span><span>' + escapeHtml(p.product_code) + '</span></div>' : '') +
           (typeObj ? '<div class="modal-extra-info-row"><span>' + t('label_info_type') + '</span><span>' + t(typeObj.labelKey) + '</span></div>' : '') +
           '<div class="modal-extra-info-row"><span>' + t('label_info_gender') + '</span><span>' + (t(CATEGORY_LABEL_KEYS[p.category]) || '') + '</span></div>' +
           (sizes.length ? '<div class="modal-extra-info-row"><span>' + t('label_info_sizes') + '</span><span>' + sizes.map(function (s) { return s.size; }).join(', ') + '</span></div>' : '') +
@@ -2286,6 +2331,11 @@ var BRAND_LOGOS = {
       applyFilters({ isPremium: true });
     });
 
+    document.getElementById('sale-section-viewall').addEventListener('click', function (e) {
+      e.preventDefault();
+      applyFilters({ saleOnly: true });
+    });
+
     document.getElementById('cart-open-btn').addEventListener('click', openCart);
     document.getElementById('cart-close-btn').addEventListener('click', closeCart);
     document.getElementById('cart-backdrop').addEventListener('click', closeCart);
@@ -2363,6 +2413,7 @@ var BRAND_LOGOS = {
     loadBrands();
     loadProducts();
     loadBestsellers();
+    loadSaleSection();
     loadSchoolSection();
 
     // Deep-link: daca URL-ul contine ?p=slug, deschid direct acel produs
