@@ -1213,7 +1213,7 @@ var BRAND_LOGOS = {
   // ===== State =====
   var products = [];
   var brands = [];
-  var filters = { category: '', type: '', brand: '', search: '', sort: 'newest', saleOnly: false, isPremium: false };
+  var filters = { category: '', type: '', brand: '', search: '', sort: 'newest', saleOnly: false, isPremium: false, barefootOnly: false };
   var cart = [];
   var appliedPromo = null;
   var wishlist = [];
@@ -1341,6 +1341,7 @@ var BRAND_LOGOS = {
     if (f.search) url += '&name=ilike.*' + encodeURIComponent(f.search) + '*';
     if (f.saleOnly) url += '&is_sale=eq.true';
     if (f.isPremium) url += '&is_premium=eq.true';
+    if (f.barefootOnly) url += '&is_barefoot=eq.true';
     if (extra) url += extra;
     return url;
   }
@@ -1532,8 +1533,14 @@ var BRAND_LOGOS = {
   }
 
   function applyFilters(partial) {
-    filters.category = ''; filters.type = ''; filters.brand = ''; filters.saleOnly = false; filters.isPremium = false;
+    filters.category = ''; filters.type = ''; filters.brand = ''; filters.saleOnly = false; filters.isPremium = false; filters.barefootOnly = false;
     Object.keys(partial).forEach(function (k) { filters[k] = partial[k]; });
+    // "Barefoot" e un steag pe produs (is_barefoot), nu o categorie separata in baza
+    // de date — produsele barefoot raman in categoria lor de gen (fete/baieti/scoala)
+    // si doar au acest steag bifat. Orice link catre categoria "barefoot" (meniu,
+    // footer, plăci, banner) trebuie sa filtreze dupa steag, nu dupa categorie,
+    // altfel rezultatul e mereu gol.
+    if (filters.category === 'barefoot') { filters.category = ''; filters.barefootOnly = true; }
     document.getElementById('brand-filter').value = filters.brand || '';
     loadProducts();
     scrollToCatalog();
