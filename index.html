@@ -625,6 +625,17 @@
   </div>
 </div>
 
+<!-- Themed section: Barefoot -->
+<main class="catalog-section" id="barefoot-section">
+  <h2 class="section-title" data-i18n="section_barefoot">Colecția Barefoot</h2>
+  <div class="product-carousel-wrap">
+    <div class="product-carousel" id="barefoot-grid">
+      <div class="loading-state"><span>🦶</span><span data-i18n="loading">Se încarcă...</span></div>
+    </div>
+    <div class="carousel-dots" id="barefoot-dots"></div>
+  </div>
+</main>
+
 <!-- Themed section: Școală -->
 <main class="catalog-section" id="school-section">
   <h2 class="section-title" data-i18n="section_school">Pregătiți de școală</h2>
@@ -823,6 +834,7 @@
       sale_view_all: 'Vezi toate →',
       section_all_products: 'Toate produsele',
       section_school: 'Pregătiți de școală',
+      section_barefoot: 'Colecția Barefoot',
       section_recommended: 'Recomandate pentru tine',
       filter_all_brands: 'Toate brandurile',
       sort_newest: 'Cele mai noi',
@@ -833,6 +845,7 @@
       error_loading: 'Nu am putut încărca produsele.',
       empty_no_results: 'Nu am găsit produse pentru filtrele selectate.',
       empty_school: 'Momentan nu sunt produse în această colecție.',
+      empty_barefoot: 'Momentan nu sunt produse în această colecție.',
       empty_bestsellers: 'Momentan nu sunt produse.',
       empty_recommended: 'Nu am găsit produse similare.',
       results_one: 'produs',
@@ -986,6 +999,7 @@
       sale_view_all: 'Смотреть все →',
       section_all_products: 'Все товары',
       section_school: 'Готовимся к школе',
+      section_barefoot: 'Коллекция Барефут',
       section_recommended: 'Рекомендуем вам',
       filter_all_brands: 'Все бренды',
       sort_newest: 'Новинки',
@@ -996,6 +1010,7 @@
       error_loading: 'Не удалось загрузить товары.',
       empty_no_results: 'Товары по выбранным фильтрам не найдены.',
       empty_school: 'Сейчас нет товаров в этой коллекции.',
+      empty_barefoot: 'Сейчас нет товаров в этой коллекции.',
       empty_bestsellers: 'Сейчас нет товаров.',
       empty_recommended: 'Похожие товары не найдены.',
       results_one: 'товар',
@@ -1173,6 +1188,7 @@
     renderProductGrid();
     loadBestsellers();
     loadSaleSection();
+    loadBarefootSection();
     loadSchoolSection();
     if (document.getElementById('cart-overlay').classList.contains('open')) renderCartPanel();
     if (document.getElementById('wishlist-overlay').classList.contains('open')) renderWishlistPanel();
@@ -1226,6 +1242,7 @@ var BRAND_LOGOS = {
   var heroIndex = 0;
   var heroTimer = null;
   var schoolProducts = [];
+  var barefootProducts = [];
   var bestsellerProducts = [];
   var recommendedProducts = [];
 
@@ -1364,6 +1381,22 @@ var BRAND_LOGOS = {
         console.error('Eroare retea la incarcarea produselor:', err);
         products = [];
         document.getElementById('catalog-content').innerHTML = '<div class="product-grid"><div class="empty-state"><span>⚠️</span>' + t('error_loading') + '</div></div>';
+      });
+  }
+
+  function loadBarefootSection() {
+    fetch(buildProductsUrl({ barefootOnly: true }, '&limit=8'), { headers: supabaseHeaders() })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var list = Array.isArray(data) ? data : [];
+        barefootProducts = list;
+        var grid = document.getElementById('barefoot-grid');
+        grid.innerHTML = list.length ? list.map(productCardHtml).join('') : '<div class="empty-state"><span>🦶</span>' + t('empty_barefoot') + '</div>';
+        bindProductCardEvents(grid);
+        setupCarousel('barefoot-grid', 'barefoot-dots', list);
+      })
+      .catch(function () {
+        document.getElementById('barefoot-grid').innerHTML = '<div class="empty-state"><span>⚠️</span>' + t('error_loading') + '</div>';
       });
   }
 
@@ -2578,6 +2611,7 @@ var BRAND_LOGOS = {
     loadProducts();
     loadBestsellers();
     loadSaleSection();
+    loadBarefootSection();
     loadSchoolSection();
 
     // Deep-link: daca URL-ul contine ?p=slug, deschid direct acel produs
