@@ -880,6 +880,7 @@
       promo_title: 'Colecția Barefoot — mișcare liberă pentru piciorul copilului',
       promo_cta: 'Vezi colecția',
       premium_banner_tag: '★ BRANDURI PREMIUM',
+      badge_first_steps: 'PRIMII PAȘI',
       premium_banner_title1: 'Calitate',
       premium_banner_title2: 'Europeană',
       premium_banner_cta: 'Descoperă',
@@ -1066,6 +1067,7 @@
       promo_title: 'Коллекция Барефут — свобода движения для детской ножки',
       promo_cta: 'Смотреть коллекцию',
       premium_banner_tag: '★ ПРЕМИУМ БРЕНДЫ',
+      badge_first_steps: 'ПЕРВЫЕ ШАГИ',
       premium_banner_title1: 'Европейское',
       premium_banner_title2: 'Качество',
       premium_banner_cta: 'Смотреть',
@@ -1901,7 +1903,7 @@ var BRAND_LOGOS = {
     if (discountPercent) { badgesHtml += '<span class="discount-badge" style="top:' + badgeTop + 'px;">-' + discountPercent + '%</span>'; badgeTop += 30; }
     if (p.category === 'school') { badgesHtml += '<span class="badge-tag badge-school" style="top:' + badgeTop + 'px;">🎒 BACK TO SCHOOL</span>'; badgeTop += 30; }
     if (p.is_barefoot) { badgesHtml += '<span class="badge-tag badge-barefoot" style="top:' + badgeTop + 'px;">BAREFOOT</span>'; badgeTop += 30; }
-    if (p.is_premium) { badgesHtml += '<span class="badge-tag badge-premium" style="top:' + badgeTop + 'px;">PREMIUM</span>'; }
+    if (p.is_premium) { badgesHtml += '<span class="badge-tag badge-premium" style="top:' + badgeTop + 'px;">👣 ' + t('badge_first_steps') + '</span>'; }
 
     return '' +
       '<div class="product-card" data-id="' + escapeHtml(p.id) + '">' +
