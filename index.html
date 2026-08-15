@@ -355,6 +355,26 @@
   .modal-trust-mobile-row { display: none; }
   .modal-share-btn { flex: 1; padding: 13px; border-radius: 12px; border: 1.5px solid #e0e4ea; background: white; color: var(--navy); font-weight: 700; font-size: 14px; font-family: var(--font-body); }
   .modal-share-btn.copied { border-color: var(--green); color: var(--green); }
+  .reviews-section { max-width: 1240px; margin: 60px auto 0; padding: 40px 20px 0; border-top: 1px solid var(--light); }
+  .reviews-summary { display: flex; align-items: center; gap: 10px; margin: 12px 0 20px; }
+  .reviews-avg-stars { color: #f5a623; font-size: 20px; }
+  .reviews-avg-value { font-size: 18px; font-weight: 800; color: var(--navy); }
+  .reviews-avg-count { font-size: 13px; color: var(--gray); }
+  .reviews-empty { font-size: 14px; color: var(--gray); }
+  .reviews-list { display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px; max-width: 600px; }
+  .review-item { background: white; border: 1px solid #E3E8EF; border-radius: 12px; padding: 14px 16px; }
+  .review-item-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+  .review-item-stars { color: #f5a623; font-size: 14px; }
+  .review-item-name { font-size: 13px; font-weight: 700; color: var(--navy); }
+  .review-item-date { font-size: 11px; color: var(--gray); margin-left: auto; }
+  .review-item-comment { font-size: 13.5px; color: #33475b; line-height: 1.6; margin: 0; }
+  .reviews-add-btn { background: var(--sky); color: white; border: none; border-radius: 10px; padding: 11px 22px; font-weight: 700; font-size: 14px; font-family: var(--font-body); cursor: pointer; }
+  .review-form { display: flex; flex-direction: column; gap: 12px; max-width: 420px; margin-top: 16px; background: var(--light); border-radius: 12px; padding: 18px; }
+  .review-form-label { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: -6px; }
+  .review-star-picker span { font-size: 26px; color: #f5a623; cursor: pointer; margin-right: 4px; }
+  .review-form-error { font-size: 12px; color: #c62828; margin: 0; }
+  .reviews-submit-btn { background: var(--orange); color: white; border: none; border-radius: 10px; padding: 11px 22px; font-weight: 700; font-size: 14px; font-family: var(--font-body); cursor: pointer; align-self: flex-start; }
+  .reviews-submit-btn:disabled { opacity: .6; cursor: default; }
   .recommended-section { margin-top: 60px; padding-top: 40px; border-top: 1px solid var(--light); }
 
   /* ===== Side panel (cart & wishlist) ===== */
@@ -863,6 +883,18 @@
       section_school: 'Pregătiți de școală',
       section_barefoot: 'Colecția Barefoot',
       section_recommended: 'Recomandate pentru tine',
+      reviews_title: 'Recenzii',
+      reviews_add_btn: 'Lasă o recenzie',
+      reviews_rating_label: 'Nota ta',
+      reviews_name_placeholder: 'Numele tău',
+      reviews_comment_placeholder: 'Scrie părerea ta despre acest produs (opțional)',
+      reviews_submit_btn: 'Trimite recenzia',
+      reviews_sending: 'Se trimite...',
+      reviews_empty: 'Niciun produs recenzat încă — fii primul!',
+      reviews_thanks: 'Mulțumim! Recenzia ta va fi vizibilă după verificare.',
+      reviews_count_label: 'recenzii',
+      reviews_error_required: 'Alege o notă și scrie numele tău.',
+      reviews_error_generic: 'A apărut o eroare. Încearcă din nou.',
       filter_all_brands: 'Toate brandurile',
       sort_newest: 'Cele mai noi',
       sort_price_asc: 'Preț crescător',
@@ -1050,6 +1082,18 @@
       section_school: 'Готовимся к школе',
       section_barefoot: 'Коллекция Барефут',
       section_recommended: 'Рекомендуем вам',
+      reviews_title: 'Отзывы',
+      reviews_add_btn: 'Оставить отзыв',
+      reviews_rating_label: 'Ваша оценка',
+      reviews_name_placeholder: 'Ваше имя',
+      reviews_comment_placeholder: 'Напишите ваше мнение об этом товаре (необязательно)',
+      reviews_submit_btn: 'Отправить отзыв',
+      reviews_sending: 'Отправка...',
+      reviews_empty: 'Пока нет отзывов — будьте первым!',
+      reviews_thanks: 'Спасибо! Ваш отзыв появится после проверки.',
+      reviews_count_label: 'отзывов',
+      reviews_error_required: 'Выберите оценку и укажите имя.',
+      reviews_error_generic: 'Произошла ошибка. Попробуйте снова.',
       filter_all_brands: 'Все бренды',
       sort_newest: 'Новинки',
       sort_price_asc: 'Цена по возрастанию',
@@ -2141,6 +2185,22 @@ var BRAND_LOGOS = {
         sizeGuideHtml +
         '</div>' +
       '</div>' +
+      '<div class="reviews-section">' +
+        '<h2 class="section-title">⭐ ' + t('reviews_title') + '</h2>' +
+        '<div id="reviews-summary" class="reviews-summary"></div>' +
+        '<div id="reviews-list" class="reviews-list"><div class="loading-state"><span>⭐</span>' + t('loading') + '</div></div>' +
+        '<button type="button" id="show-review-form-btn" class="reviews-add-btn">' + t('reviews_add_btn') + '</button>' +
+        '<form id="review-form" class="review-form" style="display:none;">' +
+          '<label class="review-form-label">' + t('reviews_rating_label') + '</label>' +
+          '<div class="review-star-picker" id="review-star-picker" data-value="0">' +
+            [1, 2, 3, 4, 5].map(function (n) { return '<span data-star="' + n + '">☆</span>'; }).join('') +
+          '</div>' +
+          '<input class="form-control" id="review-name" placeholder="' + t('reviews_name_placeholder') + '" required>' +
+          '<textarea class="form-control" id="review-comment" rows="3" placeholder="' + t('reviews_comment_placeholder') + '"></textarea>' +
+          '<p class="review-form-error" id="review-form-error" style="display:none;"></p>' +
+          '<button type="submit" class="reviews-submit-btn" id="review-submit-btn">' + t('reviews_submit_btn') + '</button>' +
+        '</form>' +
+      '</div>' +
       '<div class="recommended-section">' +
         '<h2 class="section-title">' + t('section_recommended') + '</h2>' +
         '<div class="product-carousel-wrap">' +
@@ -2174,6 +2234,102 @@ var BRAND_LOGOS = {
     if (modalSelectedSize) addBtn.addEventListener('click', function () { handleAddToCart(selectedSizeData); });
 
     loadRecommendedProducts(p);
+    initReviewsSection(p);
+  }
+
+  var REVIEWS_API_URL = 'https://linka-style.vercel.app/api/recenzii';
+  var reviewSelectedRating = 0;
+
+  function starsHtml(rating) {
+    var full = Math.round(rating);
+    var out = '';
+    for (var i = 1; i <= 5; i++) out += (i <= full ? '★' : '☆');
+    return out;
+  }
+
+  function initReviewsSection(product) {
+    reviewSelectedRating = 0;
+    var summaryEl = document.getElementById('reviews-summary');
+    var listEl = document.getElementById('reviews-list');
+    var formToggleBtn = document.getElementById('show-review-form-btn');
+    var form = document.getElementById('review-form');
+    var starPicker = document.getElementById('review-star-picker');
+    var errorEl = document.getElementById('review-form-error');
+
+    fetch(REVIEWS_API_URL + '?product_id=' + encodeURIComponent(product.id), { method: 'GET' })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var list = Array.isArray(data) ? data : [];
+        if (!list.length) {
+          summaryEl.innerHTML = '';
+          listEl.innerHTML = '<p class="reviews-empty">' + t('reviews_empty') + '</p>';
+          return;
+        }
+        var avg = list.reduce(function (sum, r) { return sum + r.rating; }, 0) / list.length;
+        summaryEl.innerHTML = '<span class="reviews-avg-stars">' + starsHtml(avg) + '</span>' +
+          '<span class="reviews-avg-value">' + avg.toFixed(1) + '</span>' +
+          '<span class="reviews-avg-count">(' + list.length + ' ' + t('reviews_count_label') + ')</span>';
+        listEl.innerHTML = list.map(function (r) {
+          return '<div class="review-item">' +
+            '<div class="review-item-head"><span class="review-item-stars">' + starsHtml(r.rating) + '</span>' +
+            '<span class="review-item-name">' + escapeHtml(r.customer_name) + '</span>' +
+            '<span class="review-item-date">' + new Date(r.created_at).toLocaleDateString('ro-MD') + '</span></div>' +
+            (r.comment ? '<p class="review-item-comment">' + escapeHtml(r.comment) + '</p>' : '') +
+          '</div>';
+        }).join('');
+      })
+      .catch(function () {
+        listEl.innerHTML = '<p class="reviews-empty">' + t('error_loading') + '</p>';
+      });
+
+    formToggleBtn.addEventListener('click', function () {
+      form.style.display = form.style.display === 'none' ? 'flex' : 'none';
+    });
+
+    Array.prototype.forEach.call(starPicker.querySelectorAll('[data-star]'), function (starEl) {
+      starEl.addEventListener('click', function () {
+        reviewSelectedRating = parseInt(starEl.getAttribute('data-star'), 10);
+        Array.prototype.forEach.call(starPicker.querySelectorAll('[data-star]'), function (s) {
+          s.textContent = parseInt(s.getAttribute('data-star'), 10) <= reviewSelectedRating ? '★' : '☆';
+        });
+      });
+    });
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      errorEl.style.display = 'none';
+      var name = document.getElementById('review-name').value.trim();
+      var comment = document.getElementById('review-comment').value.trim();
+      if (!name || !reviewSelectedRating) {
+        errorEl.textContent = t('reviews_error_required');
+        errorEl.style.display = 'block';
+        return;
+      }
+      var submitBtn = document.getElementById('review-submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = t('reviews_sending');
+      fetch(REVIEWS_API_URL, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_id: product.id, customer_name: name, rating: reviewSelectedRating, comment: comment })
+      })
+        .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
+        .then(function (res) {
+          if (!res.ok) throw new Error((res.data && res.data.error) || t('reviews_error_generic'));
+          form.style.display = 'none';
+          form.reset();
+          reviewSelectedRating = 0;
+          Array.prototype.forEach.call(starPicker.querySelectorAll('[data-star]'), function (s) { s.textContent = '☆'; });
+          listEl.innerHTML = '<p class="reviews-empty">' + t('reviews_thanks') + '</p>';
+        })
+        .catch(function (err) {
+          errorEl.textContent = err.message;
+          errorEl.style.display = 'block';
+        })
+        .finally(function () {
+          submitBtn.disabled = false;
+          submitBtn.textContent = t('reviews_submit_btn');
+        });
+    });
   }
 
   function loadRecommendedProducts(product) {
