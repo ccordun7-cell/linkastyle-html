@@ -2440,7 +2440,7 @@ var BRAND_LOGOS = {
     var resultsEl = document.getElementById('search-overlay-results');
     if (!term) { resultsEl.innerHTML = ''; return; }
     var encoded = encodeURIComponent(term);
-    var url = SUPABASE_URL + '/rest/v1/products_full?select=*&limit=6&or=(name.ilike.*' + encoded + '*,name_ru.ilike.*' + encoded + '*)';
+    var url = SUPABASE_URL + '/rest/v1/products_full?select=*&limit=6&or=(name.ilike.*' + encoded + '*,name_ru.ilike.*' + encoded + '*,brand_name.ilike.*' + encoded + '*)';
     fetch(url, { headers: supabaseHeaders() })
       .then(function (r) { return r.json(); })
       .then(function (data) {
