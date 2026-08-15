@@ -328,7 +328,9 @@
   .modal-extra-info-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; border-bottom: 1px solid #f5f5f5; }
   .modal-extra-info-row span:first-child { color: var(--gray); }
   .modal-extra-info-row span:last-child { color: var(--navy); font-weight: 600; text-align: right; }
-  .size-guide-image { width: 100%; max-width: 260px; border-radius: 14px; display: block; margin: 0 auto 16px; }
+  .size-guide-layout { display: flex; gap: 20px; align-items: flex-start; }
+  .size-guide-text { flex: 1; min-width: 0; }
+  .size-guide-image { width: 190px; max-width: 40%; flex-shrink: 0; border-radius: 14px; display: block; margin: 0; }
   .size-guide-steps { list-style: none; counter-reset: guide-step; padding: 0; margin: 0 0 14px; }
   .size-guide-steps li { counter-increment: guide-step; position: relative; padding: 0 0 12px 30px; }
   .size-guide-steps li::before { content: counter(guide-step); position: absolute; left: 0; top: 0; width: 22px; height: 22px; background: var(--sky); color: white; border-radius: 50%; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
@@ -507,6 +509,8 @@
     .product-page-grid { grid-template-columns: 1fr; gap: 24px; }
     .product-page-inner { margin-top: -42px; }
     .modal-trust-mini { display: none; }
+    .size-guide-layout { flex-direction: column; }
+    .size-guide-image { width: 100%; max-width: 240px; margin: 0 auto 14px; }
     .modal-trust-mobile-row { display: flex; justify-content: space-between; gap: 8px; background: var(--light); border-radius: 10px; padding: 10px 8px; margin: 10px 0; }
     .modal-trust-mobile-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
     .modal-trust-mobile-item .icon { font-size: 18px; }
@@ -2072,25 +2076,29 @@ var BRAND_LOGOS = {
       '<div class="modal-extra-info modal-size-guide open">' +
         '<button class="modal-extra-info-toggle" id="modal-size-guide-toggle" type="button">📏 ' + t('guide_title') + '<span class="mn-chevron">▾</span></button>' +
         '<div class="modal-extra-info-panel modal-size-guide-panel" id="modal-size-guide-panel">' +
-          '<img class="size-guide-image" src="https://res.cloudinary.com/uykdsaur/image/upload/v1786795204/IMAGE_2026-08-15_14_58_56_ruyzoe.jpg" alt="' + t('guide_title') + '" loading="lazy">' +
-          '<ol class="size-guide-steps">' +
-            '<li><b>' + t('guide_step1_title') + '</b><p>' + t('guide_step1_desc') + '</p></li>' +
-            '<li><b>' + t('guide_step2_title') + '</b><p>' + t('guide_step2_desc') + '</p></li>' +
-            '<li><b>' + t('guide_step3_title') + '</b><p>' + t('guide_step3_desc') + '</p></li>' +
-            '<li><b>' + t('guide_step4_title') + '</b><p>' + t('guide_step4_desc') + '</p></li>' +
-            '<li><b>' + t('guide_step5_title') + '</b><p>' + t('guide_step5_desc') + '</p></li>' +
-            '<li><b>' + t('guide_step6_title') + '</b><p>' + t('guide_step6_desc') + '</p></li>' +
-          '</ol>' +
-          '<p class="size-guide-important">⚠️ ' + t('guide_important') + '</p>' +
-          '<h4 class="size-guide-subtitle">' + t('guide_tips_title') + '</h4>' +
-          '<ul class="size-guide-tips">' +
-            '<li>' + t('guide_tip1') + '</li>' +
-            '<li>' + t('guide_tip2') + '</li>' +
-            '<li>' + t('guide_tip3') + '</li>' +
-            '<li>' + t('guide_tip4') + '</li>' +
-            '<li>' + t('guide_tip5') + '</li>' +
-          '</ul>' +
-          '<p class="size-guide-footer">💛 ' + t('guide_footer') + '</p>' +
+          '<div class="size-guide-layout">' +
+            '<div class="size-guide-text">' +
+              '<ol class="size-guide-steps">' +
+                '<li><b>' + t('guide_step1_title') + '</b><p>' + t('guide_step1_desc') + '</p></li>' +
+                '<li><b>' + t('guide_step2_title') + '</b><p>' + t('guide_step2_desc') + '</p></li>' +
+                '<li><b>' + t('guide_step3_title') + '</b><p>' + t('guide_step3_desc') + '</p></li>' +
+                '<li><b>' + t('guide_step4_title') + '</b><p>' + t('guide_step4_desc') + '</p></li>' +
+                '<li><b>' + t('guide_step5_title') + '</b><p>' + t('guide_step5_desc') + '</p></li>' +
+                '<li><b>' + t('guide_step6_title') + '</b><p>' + t('guide_step6_desc') + '</p></li>' +
+              '</ol>' +
+              '<p class="size-guide-important">⚠️ ' + t('guide_important') + '</p>' +
+              '<h4 class="size-guide-subtitle">' + t('guide_tips_title') + '</h4>' +
+              '<ul class="size-guide-tips">' +
+                '<li>' + t('guide_tip1') + '</li>' +
+                '<li>' + t('guide_tip2') + '</li>' +
+                '<li>' + t('guide_tip3') + '</li>' +
+                '<li>' + t('guide_tip4') + '</li>' +
+                '<li>' + t('guide_tip5') + '</li>' +
+              '</ul>' +
+              '<p class="size-guide-footer">💛 ' + t('guide_footer') + '</p>' +
+            '</div>' +
+            '<img class="size-guide-image" src="https://res.cloudinary.com/uykdsaur/image/upload/v1786795204/IMAGE_2026-08-15_14_58_56_ruyzoe.jpg" alt="' + t('guide_title') + '" loading="lazy">' +
+          '</div>' +
         '</div>' +
       '</div>';
 
@@ -2120,7 +2128,6 @@ var BRAND_LOGOS = {
           modalTrustMobileHtml +
           (localizedDescription ? '<p class="modal-description">' + escapeHtml(localizedDescription) + '</p>' : '') +
           '<label class="size-label">' + t('label_choose_size') + '</label>' + sizesHtml +
-          sizeGuideHtml +
           '<button class="add-to-cart-btn ' + btnState + '" id="add-to-cart-btn" ' + (modalSelectedSize ? '' : 'disabled') + '>' + btnLabel + '</button>' +
         '<div class="modal-secondary-actions">' +
           '<button class="modal-wishlist-btn ' + (wished ? 'active' : '') + '" id="modal-wishlist-btn">' + (wished ? '♥ ' : '♡ ') + t('btn_favorites') + '</button>' +
@@ -2129,6 +2136,7 @@ var BRAND_LOGOS = {
         phoneOrderHtml +
         extraInfoHtml +
         storeLocationHtml +
+        sizeGuideHtml +
         '</div>' +
       '</div>' +
       '<div class="recommended-section">' +
