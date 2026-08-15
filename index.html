@@ -328,6 +328,16 @@
   .modal-extra-info-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; border-bottom: 1px solid #f5f5f5; }
   .modal-extra-info-row span:first-child { color: var(--gray); }
   .modal-extra-info-row span:last-child { color: var(--navy); font-weight: 600; text-align: right; }
+  .size-guide-steps { list-style: none; counter-reset: guide-step; padding: 0; margin: 0 0 14px; }
+  .size-guide-steps li { counter-increment: guide-step; position: relative; padding: 0 0 12px 30px; }
+  .size-guide-steps li::before { content: counter(guide-step); position: absolute; left: 0; top: 0; width: 22px; height: 22px; background: var(--sky); color: white; border-radius: 50%; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+  .size-guide-steps li b { display: block; font-size: 13px; color: var(--navy); margin-bottom: 2px; }
+  .size-guide-steps li p { font-size: 12.5px; color: var(--gray); margin: 0; line-height: 1.5; }
+  .size-guide-important { background: #fff8e1; border-radius: 8px; padding: 10px 12px; font-size: 12.5px; color: #7a5c00; margin-bottom: 14px; }
+  .size-guide-subtitle { font-size: 13px; font-weight: 800; color: var(--navy); margin-bottom: 8px; }
+  .size-guide-tips { padding-left: 18px; margin: 0 0 14px; }
+  .size-guide-tips li { font-size: 12.5px; color: var(--gray); margin-bottom: 6px; line-height: 1.5; }
+  .size-guide-footer { font-size: 13px; font-weight: 700; color: var(--navy); text-align: center; padding-top: 10px; border-top: 1px dashed #e0e4ea; margin: 0; }
   .modal-store-widget { margin-top: 16px; background: white; border: 1px solid #E3E8EF; border-radius: 12px; padding: 14px; }
   .modal-store-widget-label { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 10px; }
   .modal-store-map { width: 100%; height: 160px; border: 0; border-radius: 10px; display: block; }
@@ -883,6 +893,27 @@
       label_choose_size: 'Alege mărimea (EU)',
       label_no_sizes: 'Nu sunt mărimi disponibile momentan.',
       label_size_length_note: 'Mărimea aleasă corespunde la aproximativ {cm} cm lungime interior talpă.',
+      guide_title: 'Cum să măsori corect piciorul copilului',
+      guide_step1_title: 'Pregătește tot ce ai nevoie',
+      guide_step1_desc: 'O coală de hârtie (fără șervețele) lipită de perete și trasată conturul acestuia cu un pix întreg pe verticală.',
+      guide_step2_title: 'Așază copilul corect',
+      guide_step2_desc: 'Linia lui mijlocie a călcâiului până la cel mai lung punct al degetului trebuie să fie măsurată — aceasta este lungimea piciorului (linia A din poză).',
+      guide_step3_title: 'Măsoară lățimea',
+      guide_step3_desc: 'Trasează o linie de la baza degetului mare (în dreptul montului) până la baza degetului mic și măsoară-o — aceasta este lățimea conturului (linia B din poză).',
+      guide_step4_title: 'Măsoară circumferința',
+      guide_step4_desc: 'Folosește o bandă moale și măsoară circumferința piciorului așa cum se vede în imagine și notează valoarea.',
+      guide_step5_title: 'Adaugă rezervă',
+      guide_step5_desc: 'La lungimea obținută (linia A) se adaugă o rezervă de creștere pentru un sezon: 0,5–0,7 cm. Aceasta reprezintă lungimea tălpii interioare.',
+      guide_step6_title: 'Verifică mărimea în tabel',
+      guide_step6_desc: 'Folosește grila de mărimi a producătorului tău pentru a verifica ce mărime corespunde.',
+      guide_important: 'Important: rezerva minimă recomandată este de 0,3 cm. Dacă este mai mică, se recomandă alegerea mărimii următoare.',
+      guide_tips_title: 'Sfaturi utile',
+      guide_tip1: 'Măsoară piciorul la fiecare 2–3 luni — copilul crește rapid.',
+      guide_tip2: 'Măsoară ambele picioare — pot exista diferențe. Alege mărimea după piciorul mai lung.',
+      guide_tip3: 'Copilul trebuie să stea în picioare în timpul măsurării — așa obții forma corectă.',
+      guide_tip4: 'Compară măsurătorile cu tabelul de mărimi al fiecărui producător — pot varia.',
+      guide_tip5: 'O încălțăminte potrivită înseamnă confort, susținere și dezvoltare sănătoasă!',
+      guide_footer: 'Un picior măsurat corect = o încălțăminte potrivită pentru aventurile copilăriei!',
       label_order_by_phone: 'Comandă la numărul de telefon',
       label_extra_info: 'Informații suplimentare',
       label_info_gender: 'Gen',
@@ -1048,6 +1079,27 @@
       label_choose_size: 'Выберите размер (EU)',
       label_no_sizes: 'Сейчас нет доступных размеров.',
       label_size_length_note: 'Выбранный размер соответствует примерно {cm} см длины стельки.',
+      guide_title: 'Как правильно измерить стопу ребёнка',
+      guide_step1_title: 'Подготовьте всё необходимое',
+      guide_step1_desc: 'Лист бумаги (без ворса), карандаш (не наклонённый), линейка и стена. Поставьте лист бумаги на ровную поверхность вплотную к стене.',
+      guide_step2_title: 'Поставьте ребёнка правильно',
+      guide_step2_desc: 'Пусть ребёнок встанет на лист бумаги пяткой к стене, и обведите контур стопы, держа карандаш строго вертикально.',
+      guide_step3_title: 'Измерьте длину',
+      guide_step3_desc: 'Проведите линию от самой выступающей точки пятки до самой длинной точки пальцев. Это длина стопы (линия A на рисунке).',
+      guide_step4_title: 'Измерьте ширину',
+      guide_step4_desc: 'Проведите линию от основания большого пальца (со стороны косточки) до основания мизинца. Это ширина стопы (линия B на рисунке).',
+      guide_step5_title: 'Добавьте запас',
+      guide_step5_desc: 'К полученной длине (линия A) добавьте запас на рост стопы на один сезон: 0,5–0,7 см. Это и будет внутренняя длина стельки.',
+      guide_step6_title: 'Сверьте с таблицей размеров',
+      guide_step6_desc: 'Используйте таблицу размеров производителя, чтобы определить подходящий размер обуви.',
+      guide_important: 'Важно: минимально рекомендуемый запас — 0,3 см. Если запас меньше — рекомендуется выбрать следующий размер.',
+      guide_tips_title: 'Полезные советы',
+      guide_tip1: 'Измеряйте стопу каждые 2–3 месяца — детская стопа быстро растёт.',
+      guide_tip2: 'Измеряйте обе ноги — они могут отличаться. Ориентируйтесь на больший размер.',
+      guide_tip3: 'Ребёнок должен стоять в привычном положении — так измерения будут точнее.',
+      guide_tip4: 'Сравнивайте измерения с таблицей размеров конкретного производителя.',
+      guide_tip5: 'Правильная обувь — это комфорт, поддержка и здоровое развитие детской стопы!',
+      guide_footer: 'Правильно измеренная стопа = удобная обувь и счастливые детские ножки!',
       label_order_by_phone: 'Заказать по телефону',
       label_extra_info: 'Дополнительная информация',
       label_info_gender: 'Пол',
@@ -2015,6 +2067,31 @@ var BRAND_LOGOS = {
         '</div>' +
       '</div>';
 
+    var sizeGuideHtml = '' +
+      '<div class="modal-extra-info modal-size-guide">' +
+        '<button class="modal-extra-info-toggle" id="modal-size-guide-toggle" type="button">📏 ' + t('guide_title') + '<span class="mn-chevron">▾</span></button>' +
+        '<div class="modal-extra-info-panel modal-size-guide-panel" id="modal-size-guide-panel">' +
+          '<ol class="size-guide-steps">' +
+            '<li><b>' + t('guide_step1_title') + '</b><p>' + t('guide_step1_desc') + '</p></li>' +
+            '<li><b>' + t('guide_step2_title') + '</b><p>' + t('guide_step2_desc') + '</p></li>' +
+            '<li><b>' + t('guide_step3_title') + '</b><p>' + t('guide_step3_desc') + '</p></li>' +
+            '<li><b>' + t('guide_step4_title') + '</b><p>' + t('guide_step4_desc') + '</p></li>' +
+            '<li><b>' + t('guide_step5_title') + '</b><p>' + t('guide_step5_desc') + '</p></li>' +
+            '<li><b>' + t('guide_step6_title') + '</b><p>' + t('guide_step6_desc') + '</p></li>' +
+          '</ol>' +
+          '<p class="size-guide-important">⚠️ ' + t('guide_important') + '</p>' +
+          '<h4 class="size-guide-subtitle">' + t('guide_tips_title') + '</h4>' +
+          '<ul class="size-guide-tips">' +
+            '<li>' + t('guide_tip1') + '</li>' +
+            '<li>' + t('guide_tip2') + '</li>' +
+            '<li>' + t('guide_tip3') + '</li>' +
+            '<li>' + t('guide_tip4') + '</li>' +
+            '<li>' + t('guide_tip5') + '</li>' +
+          '</ul>' +
+          '<p class="size-guide-footer">💛 ' + t('guide_footer') + '</p>' +
+        '</div>' +
+      '</div>';
+
     var storeLocationHtml = '' +
       '<div class="modal-store-widget">' +
         '<p class="modal-store-widget-label">📍 ' + t('label_store_location') + '</p>' +
@@ -2041,6 +2118,7 @@ var BRAND_LOGOS = {
           modalTrustMobileHtml +
           (localizedDescription ? '<p class="modal-description">' + escapeHtml(localizedDescription) + '</p>' : '') +
           '<label class="size-label">' + t('label_choose_size') + '</label>' + sizesHtml +
+          sizeGuideHtml +
           '<button class="add-to-cart-btn ' + btnState + '" id="add-to-cart-btn" ' + (modalSelectedSize ? '' : 'disabled') + '>' + btnLabel + '</button>' +
         '<div class="modal-secondary-actions">' +
           '<button class="modal-wishlist-btn ' + (wished ? 'active' : '') + '" id="modal-wishlist-btn">' + (wished ? '♥ ' : '♡ ') + t('btn_favorites') + '</button>' +
@@ -2062,6 +2140,10 @@ var BRAND_LOGOS = {
     var extraInfoToggle = document.getElementById('modal-extra-info-toggle');
     if (extraInfoToggle) extraInfoToggle.addEventListener('click', function () {
       extraInfoToggle.parentElement.classList.toggle('open');
+    });
+    var sizeGuideToggle = document.getElementById('modal-size-guide-toggle');
+    if (sizeGuideToggle) sizeGuideToggle.addEventListener('click', function () {
+      sizeGuideToggle.parentElement.classList.toggle('open');
     });
 
     document.getElementById('modal-wishlist-btn').addEventListener('click', function () {
