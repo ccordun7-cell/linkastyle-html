@@ -291,6 +291,10 @@
   .modal-price.on-sale { color: var(--red); }
   .modal-price-old { font-size: 15px; color: #999; text-decoration: line-through; }
   .modal-meta { font-size: 12px; color: var(--gray); }
+  .product-attr-badges { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 14px; }
+  .attr-badge { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 68px; text-align: center; }
+  .attr-badge-icon { width: 52px; height: 52px; border-radius: 50%; background: var(--orange); color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+  .attr-badge-label { font-size: 10.5px; font-weight: 600; color: var(--navy); line-height: 1.25; }
   .modal-description { font-size: 14px; color: var(--gray); line-height: 1.7; margin: 18px 0; white-space: pre-line; }
   .size-label { display: block; font-size: 13px; font-weight: 700; color: var(--gray); margin-bottom: 10px; margin-top: 22px; }
   .size-grid { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -958,6 +962,15 @@
       label_info_type: 'Tip',
       label_info_brand: 'Brand',
       label_info_code: 'Cod produs',
+      attr_heel_support: 'Susținere călcâi',
+      attr_antibacterial: 'Branț antibacterian',
+      attr_flexible: 'Flexibilitate',
+      attr_chrome_free: 'Fără crom',
+      attr_nickel_free: 'Fără nichel',
+      attr_breathable: 'Respirabil',
+      attr_antishock: 'Sistem antishock',
+      attr_orthopedic: 'Branț ortopedic',
+      attr_genuine_leather: 'Piele naturală',
       label_store_location: 'Vizitează magazinul nostru',
       label_store_more: 'Detalii',
       label_info_sizes: 'Mărimi disponibile',
@@ -1157,6 +1170,15 @@
       label_info_type: 'Тип',
       label_info_brand: 'Бренд',
       label_info_code: 'Код товара',
+      attr_heel_support: 'Поддержка пятки',
+      attr_antibacterial: 'Антибактериальная стелька',
+      attr_flexible: 'Гибкость',
+      attr_chrome_free: 'Без хрома',
+      attr_nickel_free: 'Без никеля',
+      attr_breathable: 'Дышащий материал',
+      attr_antishock: 'Система антишок',
+      attr_orthopedic: 'Ортопедическая стелька',
+      attr_genuine_leather: 'Натуральная кожа',
       label_store_location: 'Посетите наш магазин',
       label_store_more: 'Подробнее',
       label_info_sizes: 'Доступные размеры',
@@ -1385,6 +1407,38 @@ var BRAND_LOGOS = {
   }
   function getBrandLogo(name) {
     return BRAND_LOGOS[normalizeBrandKey(name)] || null;
+  }
+
+  // Insigne cu caracteristici reale ale fiecarui brand (cercetate din surse
+  // oficiale). Diferite pe brand, in mod deliberat — nu punem aceleasi 5
+  // insigne peste tot, doar ce chiar e adevarat pentru brandul respectiv.
+  var BRAND_ATTRIBUTES = {
+    biomecanics: [
+      { icon: '🦶', key: 'attr_heel_support' },
+      { icon: '🧼', key: 'attr_antibacterial' },
+      { icon: '🤸', key: 'attr_flexible' },
+      { icon: '🚫', key: 'attr_chrome_free' },
+      { icon: '🚫', key: 'attr_nickel_free' }
+    ],
+    garvalin: [
+      { icon: '🚫', key: 'attr_chrome_free' },
+      { icon: '🚫', key: 'attr_nickel_free' },
+      { icon: '🧼', key: 'attr_antibacterial' },
+      { icon: '💨', key: 'attr_breathable' }
+    ],
+    primigi: [
+      { icon: '🛡️', key: 'attr_antishock' },
+      { icon: '💨', key: 'attr_breathable' },
+      { icon: '🤸', key: 'attr_flexible' }
+    ],
+    ddstep: [
+      { icon: '🦶', key: 'attr_heel_support' },
+      { icon: '🦴', key: 'attr_orthopedic' },
+      { icon: '🐄', key: 'attr_genuine_leather' }
+    ]
+  };
+  function getBrandAttributes(brandName) {
+    return BRAND_ATTRIBUTES[normalizeBrandKey(brandName)] || [];
   }
 
   // Conversie marime EU -> lungime talpa in cm, dupa standardul "Paris point"
@@ -2170,6 +2224,9 @@ var BRAND_LOGOS = {
           '<div class="modal-price-row"><span class="modal-price' + (discountPercent ? ' on-sale' : '') + '">' + displayPrice + ' MDL</span>' +
             (p.is_sale && p.sale_price ? '<span class="modal-price-old">' + p.price + ' MDL</span>' : '') +
             (discountPercent ? '<span class="discount-badge" style="position:static;">-' + discountPercent + '%</span>' : '') + '</div>' +
+          (getBrandAttributes(p.brand_name).length ? '<div class="product-attr-badges">' + getBrandAttributes(p.brand_name).map(function (a) {
+            return '<div class="attr-badge"><span class="attr-badge-icon">' + a.icon + '</span><span class="attr-badge-label">' + t(a.key) + '</span></div>';
+          }).join('') + '</div>' : '') +
           '<span class="modal-meta">' + (t(CATEGORY_LABEL_KEYS[p.category]) || '') + (p.is_barefoot ? ' · Barefoot' : '') + '</span>' +
           modalTrustMobileHtml +
           (localizedDescription ? '<p class="modal-description">' + escapeHtml(localizedDescription) + '</p>' : '') +
