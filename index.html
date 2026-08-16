@@ -8,7 +8,8 @@
 <meta name="description" content="Linka Style — magazin online de încălțăminte pentru copii. Biomecanics, Primigi, Garvalin, D.D.Step. Livrare gratuită de la 1000 MDL. Probă acasă. Garanție 365 zile.">
 <link rel="canonical" href="https://linkastyle.com/">
 <link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/assets/favicon-32x32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="/assets/favicon-16x16.png" type="image/png" sizes="16x16">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Linka Style">
@@ -98,7 +99,8 @@
   /* ===== Header ===== */
   header.site-header { position: sticky; top: 0; z-index: 300; background: var(--white); box-shadow: 0 2px 12px rgba(0,0,0,.06); }
   .header-inner { max-width: 1240px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; gap: 18px; }
-  .logo { font-family: var(--font-display); font-size: 26px; font-weight: 700; color: var(--navy); white-space: nowrap; flex-shrink: 0; }
+  .logo { font-family: var(--font-display); font-size: 26px; font-weight: 700; color: var(--navy); white-space: nowrap; flex-shrink: 0; display: flex; align-items: center; gap: 8px; }
+  .logo-icon { height: 38px; width: 38px; border-radius: 50%; display: block; }
   .logo span { color: var(--sky); }
   nav.mega-nav { display: flex; gap: 2px; margin-left: 8px; }
   .mega-nav-item { position: relative; }
@@ -446,7 +448,8 @@
   /* ===== Footer ===== */
   footer.site-footer { background: var(--navy); color: white; margin-top: 20px; padding: 48px 20px 20px; }
   .footer-grid { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 1.4fr 1fr 1fr 1.2fr; gap: 32px; }
-  .footer-logo { font-family: var(--font-display); font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+  .footer-logo { font-family: var(--font-display); font-size: 22px; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .footer-logo-icon { height: 32px; width: 32px; border-radius: 50%; display: block; }
   .footer-logo span { color: var(--sky); }
   .footer-tagline { font-size: 13px; opacity: .7; max-width: 260px; margin-bottom: 16px; }
   .footer-social { display: flex; gap: 10px; }
@@ -566,7 +569,7 @@
 
 <header class="site-header">
   <div class="header-inner">
-    <a href="/" class="logo">Linka<span>Style</span></a>
+    <a href="/" class="logo"><img src="/assets/logo.png" alt="Linka Style" class="logo-icon">Linka<span>Style</span></a>
 
     <nav class="mega-nav" id="mega-nav"></nav>
 
@@ -722,7 +725,7 @@
 <footer class="site-footer">
   <div class="footer-grid">
     <div>
-      <div class="footer-logo">Linka<span>Style</span></div>
+      <div class="footer-logo"><img src="/assets/logo.png" alt="Linka Style" class="footer-logo-icon">Linka<span>Style</span></div>
       <p class="footer-tagline" data-i18n="footer_tagline">Încălțăminte pentru copii de brand european. Biomecanics, Primigi, Garvalin, D.D.Step.</p>
       <div class="footer-social">
         <a href="https://instagram.com/linkastyle.md" target="_blank" rel="noopener" data-i18n-aria="aria_instagram" aria-label="Instagram">

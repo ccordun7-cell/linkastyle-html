@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="light">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <title>Contact și Locație | Linka Style</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +20,8 @@
   body { font-family: var(--font-body); background: var(--cream); color: #33475b; line-height: 1.7; color-scheme: light; }
   a { color: var(--sky-dark); }
   header { background: white; border-bottom: 1px solid #F0F4F8; padding: 16px 20px; }
-  .logo { font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--navy); text-decoration: none; }
+  .logo { font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--navy); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+  .logo-icon { height: 30px; width: 30px; border-radius: 50%; display: block; }
   .logo span { color: var(--sky); }
   main { max-width: 800px; margin: 0 auto; padding: 40px 20px 80px; }
   .back-link { font-size: 13px; color: var(--sky-dark); font-weight: 700; text-decoration: none; }
@@ -41,7 +44,7 @@
 </style>
 </head>
 <body>
-<header><a href="/" class="logo">Linka<span>Style</span></a></header>
+<header><a href="/" class="logo"><img src="/assets/logo.png" alt="Linka Style" class="logo-icon">Linka<span>Style</span></a></header>
 <main>
   <a href="/" class="back-link">← Înapoi la magazin</a>
   <h1>Contact și Locație</h1>
