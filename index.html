@@ -1838,10 +1838,10 @@ var BRAND_LOGOS = {
     });
   }
 
-  var categoryBrowserState = { category: null, brand: null, step: 'brand' };
+  var categoryBrowserState = { category: null, brand: null, barefootMode: false, step: 'brand' };
 
   function openCategoryBrowser(categoryValue) {
-    categoryBrowserState = { category: categoryValue, brand: null, step: 'brand' };
+    categoryBrowserState = { category: categoryValue, brand: null, barefootMode: false, step: 'brand' };
     renderCategoryBrowserStep();
     document.getElementById('category-browser-overlay').classList.add('open');
   }
@@ -1861,10 +1861,13 @@ var BRAND_LOGOS = {
       backBtn.style.display = 'none';
       titleEl.textContent = t(cat.labelKey);
       var allCatHtml = '<a href="#" class="fs-row fs-highlight" data-allcat="1">' + t('nav_view_all') + '</a>';
+      var barefootSubcatHtml = (categoryBrowserState.category === 'girls' || categoryBrowserState.category === 'boys')
+        ? '<a href="#" class="fs-row" data-barefoot-subcat="1">🦶 ' + t('nav_barefoot') + '</a>'
+        : '';
       var brandRowsHtml = brands.map(function (b) {
         return '<a href="#" class="fs-row" data-brand="' + escapeHtml(b.slug) + '">' + escapeHtml(b.name) + '</a>';
       }).join('');
-      content.innerHTML = allCatHtml + brandRowsHtml;
+      content.innerHTML = allCatHtml + barefootSubcatHtml + brandRowsHtml;
 
       var allCatEl = content.querySelector('[data-allcat]');
       if (allCatEl) allCatEl.addEventListener('click', function (e) {
@@ -1872,18 +1875,31 @@ var BRAND_LOGOS = {
         applyFilters({ category: categoryBrowserState.category });
         closeCategoryBrowser();
       });
+      var barefootSubcatEl = content.querySelector('[data-barefoot-subcat]');
+      if (barefootSubcatEl) barefootSubcatEl.addEventListener('click', function (e) {
+        e.preventDefault();
+        categoryBrowserState.brand = null;
+        categoryBrowserState.barefootMode = true;
+        categoryBrowserState.step = 'type';
+        renderCategoryBrowserStep();
+      });
       Array.prototype.forEach.call(content.querySelectorAll('[data-brand]'), function (el) {
         el.addEventListener('click', function (e) {
           e.preventDefault();
           categoryBrowserState.brand = el.getAttribute('data-brand');
+          categoryBrowserState.barefootMode = false;
           categoryBrowserState.step = 'type';
           renderCategoryBrowserStep();
         });
       });
     } else if (categoryBrowserState.step === 'type') {
       backBtn.style.display = 'flex';
-      var brandObj = brands.filter(function (b) { return b.slug === categoryBrowserState.brand; })[0];
-      titleEl.textContent = brandObj ? brandObj.name : '';
+      if (categoryBrowserState.barefootMode) {
+        titleEl.textContent = '🦶 ' + t('nav_barefoot');
+      } else {
+        var brandObj = brands.filter(function (b) { return b.slug === categoryBrowserState.brand; })[0];
+        titleEl.textContent = brandObj ? brandObj.name : '';
+      }
       var allBrandHtml = '<a href="#" class="fs-row fs-highlight" data-allbrand="1">' + t('nav_view_all') + '</a>';
       var typeRowsHtml = TYPES.map(function (ty) {
         return '<a href="#" class="fs-row" data-type="' + ty.value + '">' + t(ty.labelKey) + '</a>';
@@ -1893,13 +1909,17 @@ var BRAND_LOGOS = {
       var allBrandEl = content.querySelector('[data-allbrand]');
       if (allBrandEl) allBrandEl.addEventListener('click', function (e) {
         e.preventDefault();
-        applyFilters({ category: categoryBrowserState.category, brand: categoryBrowserState.brand });
+        applyFilters(categoryBrowserState.barefootMode
+          ? { category: categoryBrowserState.category, barefootOnly: true }
+          : { category: categoryBrowserState.category, brand: categoryBrowserState.brand });
         closeCategoryBrowser();
       });
       Array.prototype.forEach.call(content.querySelectorAll('[data-type]'), function (el) {
         el.addEventListener('click', function (e) {
           e.preventDefault();
-          applyFilters({ category: categoryBrowserState.category, brand: categoryBrowserState.brand, type: el.getAttribute('data-type') });
+          applyFilters(categoryBrowserState.barefootMode
+            ? { category: categoryBrowserState.category, barefootOnly: true, type: el.getAttribute('data-type') }
+            : { category: categoryBrowserState.category, brand: categoryBrowserState.brand, type: el.getAttribute('data-type') });
           closeCategoryBrowser();
         });
       });
@@ -2870,6 +2890,7 @@ var BRAND_LOGOS = {
     document.getElementById('cb-back-btn').addEventListener('click', function () {
       categoryBrowserState.step = 'brand';
       categoryBrowserState.brand = null;
+      categoryBrowserState.barefootMode = false;
       renderCategoryBrowserStep();
     });
 
