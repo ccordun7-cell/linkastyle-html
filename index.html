@@ -151,7 +151,7 @@
   /* ===== Hero slider ===== */
   .hero-slider { position: relative; overflow: hidden; height: 380px; }
   .hero-slides { display: flex; height: 100%; transition: transform .5s ease; }
-  .hero-slide { min-width: 100%; height: 100%; position: relative; display: flex; align-items: center; }
+  .hero-slide { min-width: 100%; height: 100%; position: relative; display: flex; align-items: center; background-size: cover; background-position: center; }
   .hero-slide-content { position: relative; z-index: 2; max-width: 1240px; margin: 0 auto; padding: 0 20px; width: 100%; color: white; }
   .hero-slide-content h2 { font-size: clamp(26px, 4vw, 40px); font-weight: 700; max-width: 480px; line-height: 1.15; margin-bottom: 16px; }
   .hero-slide-cta { display: inline-block; background: white; color: var(--navy); font-weight: 700; padding: 12px 26px; border-radius: 30px; font-size: 14px; }
@@ -1330,7 +1330,7 @@
     applyStaticTranslations();
     updateFooterYear();
     renderMegaNav();
-    renderHeroSlider();
+    loadHeroBanners();
     renderPremiumQuicklinks();
     renderCategoryTiles();
     renderBrandFilter();
@@ -2010,10 +2010,55 @@ var BRAND_LOGOS = {
     }
   }
 
+  var BANNERS_API_URL = 'https://linka-style.vercel.app/api/bannere';
+  var heroSlideCount = HERO_SLIDES.length;
+
+  function loadHeroBanners() {
+    fetch(BANNERS_API_URL)
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var list = Array.isArray(data) ? data.filter(function (b) { return b.is_active; }) : [];
+        if (list.length) {
+          renderHeroSliderFromBanners(list);
+        } else {
+          renderHeroSlider();
+        }
+      })
+      .catch(function () {
+        renderHeroSlider();
+      });
+  }
+
+  function renderHeroSliderFromBanners(bannerList) {
+    var slidesEl = document.getElementById('hero-slides');
+    var dotsEl = document.getElementById('hero-dots');
+    if (heroTimer) { clearInterval(heroTimer); heroTimer = null; }
+    heroSlideCount = bannerList.length;
+    slidesEl.innerHTML = bannerList.map(function (b) {
+      return '<div class="hero-slide" style="background-image:url(\'' + escapeHtml(b.image_url) + '\');">' +
+        (b.title || b.cta_text ? '<div class="hero-slide-content">' +
+          (b.title ? '<h2>' + escapeHtml(b.title) + '</h2>' : '') +
+          (b.cta_text ? '<a href="' + escapeHtml(b.cta_link || '#') + '" class="hero-slide-cta">' + escapeHtml(b.cta_text) + '</a>' : '') +
+        '</div>' : '') +
+      '</div>';
+    }).join('');
+    dotsEl.innerHTML = bannerList.map(function (_, i) { return '<button data-idx="' + i + '"></button>'; }).join('');
+
+    Array.prototype.forEach.call(dotsEl.querySelectorAll('button'), function (dot) {
+      dot.addEventListener('click', function () { goToHeroSlide(parseInt(dot.getAttribute('data-idx'), 10)); });
+    });
+    document.getElementById('hero-prev').addEventListener('click', function () { goToHeroSlide(heroIndex - 1); });
+    document.getElementById('hero-next').addEventListener('click', function () { goToHeroSlide(heroIndex + 1); });
+
+    updateHeroSlide();
+    heroTimer = setInterval(function () { goToHeroSlide(heroIndex + 1); }, 5500);
+  }
+
   function renderHeroSlider() {
     var slidesEl = document.getElementById('hero-slides');
     var dotsEl = document.getElementById('hero-dots');
     if (heroTimer) { clearInterval(heroTimer); heroTimer = null; }
+    heroSlideCount = HERO_SLIDES.length;
     slidesEl.innerHTML = HERO_SLIDES.map(function (s) {
       return '<div class="hero-slide" style="background:' + s.bg + '">' +
         '<div class="hero-slide-content"><h2>' + t(s.titleKey) + '</h2><a href="#" class="hero-slide-cta">' + t(s.ctaKey) + '</a></div>' +
@@ -2035,7 +2080,7 @@ var BRAND_LOGOS = {
   }
 
   function goToHeroSlide(idx) {
-    heroIndex = (idx + HERO_SLIDES.length) % HERO_SLIDES.length;
+    heroIndex = (idx + heroSlideCount) % heroSlideCount;
     updateHeroSlide();
   }
   function updateHeroSlide() {
@@ -3032,7 +3077,7 @@ var BRAND_LOGOS = {
     applyStaticTranslations();
     updateFooterYear();
     renderMegaNav();
-    renderHeroSlider();
+    loadHeroBanners();
     renderPremiumQuicklinks();
     renderCategoryTiles();
     initEvents();
