@@ -82,12 +82,12 @@
   .section-title { font-family: var(--font-body); font-size: clamp(22px, 3vw, 30px); font-weight: 800; color: #1a1a1a; text-align: left; margin-bottom: 20px; letter-spacing: -.5px; }
 
   /* ===== Announcement bar ===== */
-  .announce-bar { background: var(--navy); color: white; font-size: 12px; font-weight: 600; }
+  .announce-bar { background: var(--navy); color: white; font-size: 12px; font-weight: 600; position: static !important; }
   .announce-bar .container { display: flex; justify-content: center; gap: 28px; padding: 8px 20px; flex-wrap: wrap; }
   .announce-bar span { display: flex; align-items: center; gap: 6px; }
 
   /* ===== Utility bar ===== */
-  .utility-bar { background: var(--light); font-size: 12px; }
+  .utility-bar { background: var(--light); font-size: 12px; position: static !important; }
   .utility-bar .container { display: flex; justify-content: flex-end; align-items: center; gap: 20px; padding: 6px 20px; }
   .utility-bar a { color: var(--navy); font-weight: 600; display: flex; align-items: center; gap: 4px; }
   .utility-bar a:hover { color: var(--sky-dark); }
@@ -97,7 +97,7 @@
   .icon-svg { width: 15px; height: 15px; flex-shrink: 0; }
 
   /* ===== Header ===== */
-  header.site-header { position: static; background: var(--white); box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+  header.site-header { position: static !important; background: var(--white); box-shadow: 0 2px 12px rgba(0,0,0,.06); }
   .header-inner { max-width: 1240px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; gap: 18px; }
   .logo { font-family: var(--font-display); font-size: 26px; font-weight: 700; color: var(--navy); white-space: nowrap; flex-shrink: 0; display: flex; align-items: center; gap: 8px; }
   .logo-icon { height: 38px; width: 38px; border-radius: 50%; display: block; }
