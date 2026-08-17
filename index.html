@@ -2154,7 +2154,7 @@ var BRAND_LOGOS = {
     var badgesHtml = '';
     var badgeTop = 10;
     if (discountPercent) { badgesHtml += '<span class="discount-badge" style="top:' + badgeTop + 'px;">-' + discountPercent + '%</span>'; badgeTop += 30; }
-    if (p.category === 'school') { badgesHtml += '<span class="badge-tag badge-school" style="top:' + badgeTop + 'px;">🎒 BACK TO SCHOOL</span>'; badgeTop += 30; }
+    if (p.category === 'school' || p.is_school) { badgesHtml += '<span class="badge-tag badge-school" style="top:' + badgeTop + 'px;">🎒 BACK TO SCHOOL</span>'; badgeTop += 30; }
     if (p.is_barefoot) { badgesHtml += '<span class="badge-tag badge-barefoot" style="top:' + badgeTop + 'px;">BAREFOOT</span>'; badgeTop += 30; }
     if (p.is_premium) { badgesHtml += '<span class="badge-tag badge-premium" style="top:' + badgeTop + 'px;">👣 ' + t('badge_first_steps') + '</span>'; }
 
