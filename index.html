@@ -1706,11 +1706,28 @@ var BRAND_LOGOS = {
     renderMobileNav();
   }
 
+  function mobileNavSubcatLinksHtml(categoryValue) {
+    // Pentru Fete/Baieti: tipurile de incaltaminte + Barefoot/Scoala ca subcategorii speciale.
+    // Pentru categoria Barefoot insasi: doar tipurile, fara subcategorii suplimentare.
+    var isGenderCat = (categoryValue === 'girls' || categoryValue === 'boys');
+    var typeLinksHtml = TYPES.map(function (ty) {
+      return '<a href="#" data-mn-type="' + ty.value + '" data-mn-cat="' + categoryValue + '">' + t(ty.labelKey) + '</a>';
+    }).join('');
+    var barefootLinkHtml = isGenderCat ? '<a href="#" data-mn-barefoot="1" data-mn-cat="' + categoryValue + '">🦶 ' + t('nav_barefoot') + '</a>' : '';
+    var schoolLinkHtml = isGenderCat ? '<a href="#" data-mn-school="1" data-mn-cat="' + categoryValue + '">🎓 ' + t('nav_school') + '</a>' : '';
+    var viewAllHtml = '<a href="#" class="mn-viewall" data-mn-viewall="1" data-mn-cat="' + categoryValue + '">' + t('nav_view_all') + '</a>';
+    return typeLinksHtml + barefootLinkHtml + schoolLinkHtml + viewAllHtml;
+  }
+
   function renderMobileNav() {
     var mobileNav = document.getElementById('mobile-nav');
 
-    var catsHtml = CATEGORIES.map(function (c) {
-      return '<button class="mn-flat-btn" data-opencat="' + c.value + '" type="button">' + t(c.labelKey) + '</button>';
+    var catsHtml = CATEGORIES.filter(function (c) { return c.value !== 'school'; }).map(function (c) {
+      return '' +
+        '<div class="mn-section">' +
+          '<button class="mn-cat-toggle" type="button">' + t(c.labelKey) + '<span class="mn-chevron">▾</span></button>' +
+          '<div class="mn-subpanel">' + mobileNavSubcatLinksHtml(c.value) + '</div>' +
+        '</div>';
     }).join('');
 
     var brandLinksHtml = brands.map(function (b) {
@@ -1723,6 +1740,7 @@ var BRAND_LOGOS = {
       '</div>';
 
     var flatHtml =
+      '<button class="mn-flat-btn" data-school="1" type="button">' + t('nav_school') + '</button>' +
       '<button class="mn-flat-btn" data-sale="1">' + t('nav_sale') + '</button>' +
       '<button class="mn-flat-btn" data-reset="1">' + t('nav_all') + '</button>';
 
@@ -1736,6 +1754,34 @@ var BRAND_LOGOS = {
         if (!wasOpen) section.classList.add('open');
       });
     });
+    Array.prototype.forEach.call(mobileNav.querySelectorAll('[data-mn-type]'), function (el) {
+      el.addEventListener('click', function (e) {
+        e.preventDefault();
+        applyFilters({ category: el.getAttribute('data-mn-cat'), type: el.getAttribute('data-mn-type') });
+        mobileNav.classList.remove('open');
+      });
+    });
+    Array.prototype.forEach.call(mobileNav.querySelectorAll('[data-mn-barefoot]'), function (el) {
+      el.addEventListener('click', function (e) {
+        e.preventDefault();
+        applyFilters({ category: el.getAttribute('data-mn-cat'), barefootOnly: true });
+        mobileNav.classList.remove('open');
+      });
+    });
+    Array.prototype.forEach.call(mobileNav.querySelectorAll('[data-mn-school]'), function (el) {
+      el.addEventListener('click', function (e) {
+        e.preventDefault();
+        applyFilters({ category: el.getAttribute('data-mn-cat'), schoolOnly: true });
+        mobileNav.classList.remove('open');
+      });
+    });
+    Array.prototype.forEach.call(mobileNav.querySelectorAll('[data-mn-viewall]'), function (el) {
+      el.addEventListener('click', function (e) {
+        e.preventDefault();
+        applyFilters({ category: el.getAttribute('data-mn-cat') });
+        mobileNav.classList.remove('open');
+      });
+    });
     Array.prototype.forEach.call(mobileNav.querySelectorAll('[data-opencat]'), function (btn) {
       btn.addEventListener('click', function () {
         mobileNav.classList.remove('open');
@@ -1745,6 +1791,8 @@ var BRAND_LOGOS = {
     Array.prototype.forEach.call(mobileNav.querySelectorAll('[data-brand]'), function (el) {
       el.addEventListener('click', function (e) { e.preventDefault(); applyFilters({ brand: el.getAttribute('data-brand') }); mobileNav.classList.remove('open'); });
     });
+    var schoolBtn = mobileNav.querySelector('[data-school]');
+    if (schoolBtn) schoolBtn.addEventListener('click', function () { applyFilters({ category: 'school' }); mobileNav.classList.remove('open'); });
     var saleBtn = mobileNav.querySelector('[data-sale]');
     if (saleBtn) saleBtn.addEventListener('click', function () { applyFilters({ saleOnly: true }); mobileNav.classList.remove('open'); });
     var resetBtn = mobileNav.querySelector('[data-reset]');
