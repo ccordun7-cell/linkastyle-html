@@ -2259,10 +2259,10 @@ var BRAND_LOGOS = {
           (getBrandAttributes(p.brand_name).length ? '<div class="product-attr-badges">' + getBrandAttributes(p.brand_name).map(function (a) {
             return '<div class="attr-badge"><span class="attr-badge-icon">' + a.icon + '</span><span class="attr-badge-label">' + t(a.key) + '</span></div>';
           }).join('') + '</div>' : '') +
+          '<label class="size-label">' + t('label_choose_size') + '</label>' + sizesHtml +
           '<span class="modal-meta">' + (t(CATEGORY_LABEL_KEYS[p.category]) || '') + (p.is_barefoot ? ' · Barefoot' : '') + '</span>' +
           modalTrustMobileHtml +
           (localizedDescription ? '<p class="modal-description">' + escapeHtml(localizedDescription) + '</p>' : '') +
-          '<label class="size-label">' + t('label_choose_size') + '</label>' + sizesHtml +
           '<button class="add-to-cart-btn ' + btnState + '" id="add-to-cart-btn" ' + (modalSelectedSize ? '' : 'disabled') + '>' + btnLabel + '</button>' +
         '<div class="modal-secondary-actions">' +
           '<button class="modal-wishlist-btn ' + (wished ? 'active' : '') + '" id="modal-wishlist-btn">' + (wished ? '♥ ' : '♡ ') + t('btn_favorites') + '</button>' +
