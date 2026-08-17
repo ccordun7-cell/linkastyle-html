@@ -1378,7 +1378,7 @@ var BRAND_LOGOS = {
   // ===== State =====
   var products = [];
   var brands = [];
-  var filters = { category: '', type: '', brand: '', search: '', sort: 'newest', saleOnly: false, isPremium: false, barefootOnly: false };
+  var filters = { category: '', type: '', brand: '', search: '', sort: 'newest', saleOnly: false, isPremium: false, barefootOnly: false, schoolOnly: false, schoolCombined: false };
   var cart = [];
   var appliedPromo = null;
   var wishlist = [];
@@ -1540,6 +1540,11 @@ var BRAND_LOGOS = {
     if (f.saleOnly) url += '&is_sale=eq.true';
     if (f.isPremium) url += '&is_premium=eq.true';
     if (f.barefootOnly) url += '&is_barefoot=eq.true';
+    if (f.schoolOnly) url += '&is_school=eq.true';
+    // Combina produsele vechi (categoria = "school") cu cele etichetate nou
+    // (is_school = true), ca nimic sa nu dispara pana clienta re-eticheteaza
+    // manual produsele vechi de scoala cu genul real + noul steag.
+    if (f.schoolCombined) url += '&or=(category.eq.school,is_school.eq.true)';
     if (extra) url += extra;
     return url;
   }
@@ -1582,7 +1587,7 @@ var BRAND_LOGOS = {
   }
 
   function loadSchoolSection() {
-    fetch(buildProductsUrl({ category: 'school' }, '&limit=8'), { headers: supabaseHeaders() })
+    fetch(buildProductsUrl({ schoolCombined: true }, '&limit=8'), { headers: supabaseHeaders() })
       .then(function (r) { return r.json(); })
       .then(function (data) {
         var list = Array.isArray(data) ? data : [];
@@ -1747,7 +1752,7 @@ var BRAND_LOGOS = {
   }
 
   function applyFilters(partial) {
-    filters.category = ''; filters.type = ''; filters.brand = ''; filters.saleOnly = false; filters.isPremium = false; filters.barefootOnly = false;
+    filters.category = ''; filters.type = ''; filters.brand = ''; filters.saleOnly = false; filters.isPremium = false; filters.barefootOnly = false; filters.schoolOnly = false; filters.schoolCombined = false;
     Object.keys(partial).forEach(function (k) { filters[k] = partial[k]; });
     // "Barefoot" e un steag pe produs (is_barefoot), nu o categorie separata in baza
     // de date — produsele barefoot raman in categoria lor de gen (fete/baieti/scoala)
@@ -1755,6 +1760,10 @@ var BRAND_LOGOS = {
     // footer, plăci, banner) trebuie sa filtreze dupa steag, nu dupa categorie,
     // altfel rezultatul e mereu gol.
     if (filters.category === 'barefoot') { filters.category = ''; filters.barefootOnly = true; }
+    // "Scoala" e in tranzitie: produsele vechi au categoria="school", cele noi
+    // (re-etichetate manual) au gen real + is_school=true. Combinam ambele
+    // variante, ca nimic sa nu dispara in timpul tranzitiei.
+    if (filters.category === 'school') { filters.category = ''; filters.schoolCombined = true; }
     document.getElementById('brand-filter').value = filters.brand || '';
     loadProducts();
     scrollToCatalog();
@@ -1844,10 +1853,10 @@ var BRAND_LOGOS = {
     });
   }
 
-  var categoryBrowserState = { category: null, brand: null, barefootMode: false, step: 'brand' };
+  var categoryBrowserState = { category: null, brand: null, barefootMode: false, schoolMode: false, step: 'brand' };
 
   function openCategoryBrowser(categoryValue) {
-    categoryBrowserState = { category: categoryValue, brand: null, barefootMode: false, step: 'brand' };
+    categoryBrowserState = { category: categoryValue, brand: null, barefootMode: false, schoolMode: false, step: 'brand' };
     renderCategoryBrowserStep();
     document.getElementById('category-browser-overlay').classList.add('open');
   }
@@ -1867,13 +1876,17 @@ var BRAND_LOGOS = {
       backBtn.style.display = 'none';
       titleEl.textContent = t(cat.labelKey);
       var allCatHtml = '<a href="#" class="fs-row fs-highlight" data-allcat="1">' + t('nav_view_all') + '</a>';
-      var barefootSubcatHtml = (categoryBrowserState.category === 'girls' || categoryBrowserState.category === 'boys')
+      var isGenderCat = (categoryBrowserState.category === 'girls' || categoryBrowserState.category === 'boys');
+      var barefootSubcatHtml = isGenderCat
         ? '<a href="#" class="fs-row" data-barefoot-subcat="1">🦶 ' + t('nav_barefoot') + '</a>'
+        : '';
+      var schoolSubcatHtml = isGenderCat
+        ? '<a href="#" class="fs-row" data-school-subcat="1">🎓 ' + t('nav_school') + '</a>'
         : '';
       var brandRowsHtml = brands.map(function (b) {
         return '<a href="#" class="fs-row" data-brand="' + escapeHtml(b.slug) + '">' + escapeHtml(b.name) + '</a>';
       }).join('');
-      content.innerHTML = allCatHtml + barefootSubcatHtml + brandRowsHtml;
+      content.innerHTML = allCatHtml + barefootSubcatHtml + schoolSubcatHtml + brandRowsHtml;
 
       var allCatEl = content.querySelector('[data-allcat]');
       if (allCatEl) allCatEl.addEventListener('click', function (e) {
@@ -1886,6 +1899,16 @@ var BRAND_LOGOS = {
         e.preventDefault();
         categoryBrowserState.brand = null;
         categoryBrowserState.barefootMode = true;
+        categoryBrowserState.schoolMode = false;
+        categoryBrowserState.step = 'type';
+        renderCategoryBrowserStep();
+      });
+      var schoolSubcatEl = content.querySelector('[data-school-subcat]');
+      if (schoolSubcatEl) schoolSubcatEl.addEventListener('click', function (e) {
+        e.preventDefault();
+        categoryBrowserState.brand = null;
+        categoryBrowserState.schoolMode = true;
+        categoryBrowserState.barefootMode = false;
         categoryBrowserState.step = 'type';
         renderCategoryBrowserStep();
       });
@@ -1894,6 +1917,7 @@ var BRAND_LOGOS = {
           e.preventDefault();
           categoryBrowserState.brand = el.getAttribute('data-brand');
           categoryBrowserState.barefootMode = false;
+          categoryBrowserState.schoolMode = false;
           categoryBrowserState.step = 'type';
           renderCategoryBrowserStep();
         });
@@ -1902,6 +1926,8 @@ var BRAND_LOGOS = {
       backBtn.style.display = 'flex';
       if (categoryBrowserState.barefootMode) {
         titleEl.textContent = '🦶 ' + t('nav_barefoot');
+      } else if (categoryBrowserState.schoolMode) {
+        titleEl.textContent = '🎓 ' + t('nav_school');
       } else {
         var brandObj = brands.filter(function (b) { return b.slug === categoryBrowserState.brand; })[0];
         titleEl.textContent = brandObj ? brandObj.name : '';
@@ -1912,20 +1938,24 @@ var BRAND_LOGOS = {
       }).join('');
       content.innerHTML = allBrandHtml + typeRowsHtml;
 
+      function subcatFilters(extra) {
+        var base = { category: categoryBrowserState.category };
+        if (categoryBrowserState.barefootMode) base.barefootOnly = true;
+        else if (categoryBrowserState.schoolMode) base.schoolOnly = true;
+        else base.brand = categoryBrowserState.brand;
+        return Object.assign(base, extra || {});
+      }
+
       var allBrandEl = content.querySelector('[data-allbrand]');
       if (allBrandEl) allBrandEl.addEventListener('click', function (e) {
         e.preventDefault();
-        applyFilters(categoryBrowserState.barefootMode
-          ? { category: categoryBrowserState.category, barefootOnly: true }
-          : { category: categoryBrowserState.category, brand: categoryBrowserState.brand });
+        applyFilters(subcatFilters());
         closeCategoryBrowser();
       });
       Array.prototype.forEach.call(content.querySelectorAll('[data-type]'), function (el) {
         el.addEventListener('click', function (e) {
           e.preventDefault();
-          applyFilters(categoryBrowserState.barefootMode
-            ? { category: categoryBrowserState.category, barefootOnly: true, type: el.getAttribute('data-type') }
-            : { category: categoryBrowserState.category, brand: categoryBrowserState.brand, type: el.getAttribute('data-type') });
+          applyFilters(subcatFilters({ type: el.getAttribute('data-type') }));
           closeCategoryBrowser();
         });
       });
@@ -2897,6 +2927,7 @@ var BRAND_LOGOS = {
       categoryBrowserState.step = 'brand';
       categoryBrowserState.brand = null;
       categoryBrowserState.barefootMode = false;
+      categoryBrowserState.schoolMode = false;
       renderCategoryBrowserStep();
     });
 
