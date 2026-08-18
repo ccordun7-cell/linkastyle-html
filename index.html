@@ -1678,6 +1678,23 @@ var BRAND_LOGOS = {
     }).join('');
 
     var itemsHtml = CATEGORIES.map(function (c) {
+      if (c.value === 'papucei') {
+        // Papucei nu e o categorie reala in baza de date — produsele raman cu
+        // genul lor real + type="papucei". Panoul arata gen, nu tip de incaltaminte.
+        var genderLinks = ['girls', 'boys', 'barefoot'].map(function (g) {
+          var lbl = g === 'girls' ? t('nav_girls') : g === 'boys' ? t('nav_boys') : t('nav_barefoot');
+          return '<a href="#" data-pap-mega-gender="' + g + '">' + lbl + '</a>';
+        }).join('');
+        return '' +
+          '<div class="mega-nav-item">' +
+            '<button data-pap-mega-viewall="1">' + t(c.labelKey) + '</button>' +
+            '<div class="mega-panel">' +
+              '<div class="mega-col"><h4>' + t('nav_type_title') + '</h4>' + genderLinks + '<a href="#" data-pap-mega-viewall="1">' + t('nav_view_all') + '</a></div>' +
+              '<div class="mega-col"><h4>' + t('nav_brand_title') + '</h4>' + brandLinksHtml + '</div>' +
+              '<div class="mega-tile ' + c.tile + '"><span>' + c.icon + ' ' + t(c.labelKey) + '</span></div>' +
+            '</div>' +
+          '</div>';
+      }
       var typeLinks = TYPES.map(function (ty) {
         return '<a href="#" data-cat="' + c.value + '" data-type="' + ty.value + '">' + t(ty.labelKey) + '</a>';
       }).join('');
@@ -1700,6 +1717,18 @@ var BRAND_LOGOS = {
       el.addEventListener('click', function (e) {
         e.preventDefault();
         applyFilters({ category: el.getAttribute('data-cat'), type: el.getAttribute('data-type') || '' });
+      });
+    });
+    Array.prototype.forEach.call(nav.querySelectorAll('[data-pap-mega-gender]'), function (el) {
+      el.addEventListener('click', function (e) {
+        e.preventDefault();
+        applyFilters({ category: el.getAttribute('data-pap-mega-gender'), type: 'papucei' });
+      });
+    });
+    Array.prototype.forEach.call(nav.querySelectorAll('[data-pap-mega-viewall]'), function (el) {
+      el.addEventListener('click', function (e) {
+        e.preventDefault();
+        applyFilters({ type: 'papucei' });
       });
     });
     Array.prototype.forEach.call(nav.querySelectorAll('[data-brand]'), function (el) {
