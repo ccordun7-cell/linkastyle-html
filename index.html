@@ -193,11 +193,12 @@
   .brand-chip.has-logo img { height: 30px; width: auto; display: block; background: none; }
 
   /* ===== Category tiles ===== */
-  .category-tiles { max-width: 1240px; margin: 0 auto; padding: 32px 20px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .category-tiles { max-width: 1240px; margin: 0 auto; padding: 32px 20px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; }
   .category-tile { cursor: pointer; }
   .category-tile-image { position: relative; border-radius: 14px; overflow: hidden; aspect-ratio: 3 / 2; background: #F5F6F8; }
   .category-tile-image img { width: 100%; height: 100%; object-fit: cover; }
   .category-tile-image .cat-fallback { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 52px; }
+  .tile-papucei .cat-fallback { background: linear-gradient(135deg, #C77DFF, #9D4EDD); }
   .tile-fete .cat-fallback { background: linear-gradient(135deg, #ff8fa3, #ff6b8b); }
   .tile-baieti .cat-fallback { background: linear-gradient(135deg, #4AADE8, #2f6fb0); }
   .tile-barefoot .cat-fallback { background: linear-gradient(135deg, #1A8A50, #0d5c33); }
@@ -871,6 +872,7 @@
       aria_instagram: 'Instagram',
       search_placeholder: 'Caută încălțăminte...',
       nav_all: 'Toate',
+      nav_papucei: 'Papucei',
       nav_girls: 'Fete',
       nav_boys: 'Băieți',
       nav_barefoot: 'Barefoot',
@@ -1079,6 +1081,7 @@
       aria_instagram: 'Instagram',
       search_placeholder: 'Поиск обуви...',
       nav_all: 'Все',
+      nav_papucei: 'Тапочки',
       nav_girls: 'Девочки',
       nav_boys: 'Мальчики',
       nav_barefoot: 'Барефут',
@@ -1355,12 +1358,13 @@ var BRAND_LOGOS = {
 
 
   var CATEGORIES = [
+    { value: 'papucei', labelKey: 'nav_papucei', tile: 'tile-papucei', icon: '🩰' },
     { value: 'girls', labelKey: 'nav_girls', tile: 'tile-fete', icon: '👧' },
     { value: 'boys', labelKey: 'nav_boys', tile: 'tile-baieti', icon: '👦' },
     { value: 'barefoot', labelKey: 'nav_barefoot', tile: 'tile-barefoot', icon: '🦶' },
     { value: 'school', labelKey: 'nav_school', tile: 'tile-scoala', icon: '🎒' }
   ];
-  var CATEGORY_LABEL_KEYS = { girls: 'nav_girls', boys: 'nav_boys', barefoot: 'nav_barefoot', school: 'nav_school' };
+  var CATEGORY_LABEL_KEYS = { girls: 'nav_girls', boys: 'nav_boys', barefoot: 'nav_barefoot', school: 'nav_school', papucei: 'nav_papucei' };
   var TYPES = [
     { value: 'sandale', labelKey: 'type_sandale' },
     { value: 'sneakers', labelKey: 'type_sneakers' },
@@ -1885,7 +1889,7 @@ var BRAND_LOGOS = {
   // ===== Hero slider =====
   function renderPremiumQuicklinks() {
     var el = document.getElementById('premium-quicklinks');
-    var quickCats = CATEGORIES.filter(function (c) { return c.value === 'girls' || c.value === 'boys' || c.value === 'barefoot'; });
+    var quickCats = CATEGORIES.filter(function (c) { return c.value === 'papucei' || c.value === 'girls' || c.value === 'boys' || c.value === 'barefoot'; });
     var catsHtml = '<div class="hero-quick-categories">' + quickCats.map(function (c) {
       return '<button class="hero-quick-cat" data-cat="' + c.value + '"><span class="emoji">' + c.icon + '</span><span class="label">' + t(c.labelKey) + '</span></button>';
     }).join('') + '</div>';
