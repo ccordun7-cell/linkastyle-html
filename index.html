@@ -193,7 +193,7 @@
   .brand-chip.has-logo img { height: 30px; width: auto; display: block; background: none; }
 
   /* ===== Category tiles ===== */
-  .category-tiles { max-width: 1240px; margin: 0 auto; padding: 32px 20px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; }
+  .category-tiles { max-width: 1240px; margin: 0 auto; padding: 32px 20px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
   .category-tile { cursor: pointer; }
   .category-tile-image { position: relative; border-radius: 14px; overflow: hidden; aspect-ratio: 3 / 2; background: #F5F6F8; }
   .category-tile-image img { width: 100%; height: 100%; object-fit: cover; }
@@ -1911,7 +1911,9 @@ var BRAND_LOGOS = {
 
   function renderCategoryTiles() {
     var container = document.getElementById('category-tiles');
-    container.innerHTML = CATEGORIES.map(function (c) {
+    // "Papucei" nu apare in grila de tile-uri foto de pe homepage la cererea clientei
+    // (ramane totusi in navigare: meniu de sus, hamburger, hero quicklinks).
+    container.innerHTML = CATEGORIES.filter(function (c) { return c.value !== 'papucei'; }).map(function (c) {
       return '<div class="category-tile ' + c.tile + '" data-cat="' + c.value + '">' +
         '<div class="category-tile-image" id="tile-img-' + c.value + '"><div class="cat-fallback">' + c.icon + '</div></div>' +
         '<div class="category-tile-label"><span>' + t(c.labelKey) + '</span><span class="arrow">→</span></div>' +
@@ -1924,7 +1926,7 @@ var BRAND_LOGOS = {
   }
 
   function loadCategoryTileImages() {
-    CATEGORIES.forEach(function (c) {
+    CATEGORIES.filter(function (c) { return c.value !== 'papucei'; }).forEach(function (c) {
       if (CATEGORY_TILE_IMAGES[c.value]) {
         var el = document.getElementById('tile-img-' + c.value);
         if (el) el.innerHTML = '<img src="' + escapeHtml(CATEGORY_TILE_IMAGES[c.value]) + '" alt="' + escapeHtml(t(c.labelKey)) + '">';
