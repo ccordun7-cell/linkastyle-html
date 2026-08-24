@@ -189,6 +189,12 @@
   body.catalog-focus-mode main.catalog-section#catalog-section { min-height: 60vh; }
   .catalog-back-btn { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; color: var(--sky-dark); font-size: 15px; font-weight: 600; font-family: var(--font-body); cursor: pointer; padding: 0; margin-bottom: 16px; }
   .catalog-back-btn:hover { text-decoration: underline; }
+  .catalog-preview-actions { display: flex; gap: 14px; justify-content: center; margin-top: 28px; flex-wrap: wrap; }
+  .catalog-viewmore-btn, .catalog-viewgallery-btn { font-family: var(--font-body); font-size: 14px; font-weight: 700; border-radius: 10px; padding: 13px 24px; cursor: pointer; }
+  .catalog-viewmore-btn { background: var(--sky); color: white; border: none; }
+  .catalog-viewmore-btn:hover { background: var(--sky-dark); }
+  .catalog-viewgallery-btn { background: white; color: var(--navy); border: 1.5px solid #e0e4ea; }
+  .catalog-viewgallery-btn:hover { border-color: var(--sky); color: var(--sky-dark); }
   .category-tile { cursor: pointer; }
   .category-tile-image { position: relative; border-radius: 14px; overflow: hidden; aspect-ratio: 3 / 2; background: #F5F6F8; }
   .category-tile-image img { width: 100%; height: 100%; object-fit: cover; }
@@ -874,6 +880,8 @@
       search_placeholder: 'Caută încălțăminte...',
       nav_all: 'Toate',
       catalog_back: 'Înapoi la meniu',
+      catalog_view_more: 'Vezi mai multe',
+      catalog_view_gallery: 'Vezi toată galeria',
       nav_papucei: 'Papucei',
       nav_girls: 'Fete',
       nav_boys: 'Băieți',
@@ -1085,6 +1093,8 @@
       search_placeholder: 'Поиск обуви...',
       nav_all: 'Все',
       catalog_back: 'Назад в меню',
+      catalog_view_more: 'Показать больше',
+      catalog_view_gallery: 'Смотреть всю галерею',
       nav_papucei: 'Тапочки',
       nav_girls: 'Девочки',
       nav_boys: 'Мальчики',
@@ -1496,6 +1506,11 @@ var BRAND_LOGOS = {
     document.body.classList.remove('catalog-focus-mode');
     var backBtn = document.getElementById('catalog-back-btn');
     if (backBtn) backBtn.style.display = 'none';
+    // La intoarcere, homepage-ul trebuie sa arate din nou vederea implicita
+    // (Toate produsele, capata la 3 randuri), nu ramasitele categoriei navigate.
+    filters.category = ''; filters.type = ''; filters.brand = ''; filters.saleOnly = false; filters.isPremium = false; filters.barefootOnly = false; filters.schoolOnly = false; filters.schoolCombined = false;
+    document.getElementById('brand-filter').value = '';
+    loadProducts();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -2204,6 +2219,18 @@ var BRAND_LOGOS = {
   }
 
   // ===== Product grid & card =====
+  // Calculeaza cate produse incap pe un rand la latimea curenta a ecranului,
+  // ca sa putem arata exact "3 randuri" pe homepage indiferent de device.
+  function getProductGridColumns() {
+    var w = window.innerWidth;
+    if (w <= 380) return 2;
+    if (w <= 640) return 3;
+    var containerWidth = Math.min(w, 1240) - 40;
+    var gap = 20;
+    var cols = Math.floor((containerWidth + gap) / (230 + gap));
+    return Math.max(cols, 1);
+  }
+
   function renderProductGrid() {
     var container = document.getElementById('catalog-content');
     var list = sortedProducts();
@@ -2213,13 +2240,53 @@ var BRAND_LOGOS = {
       container.innerHTML = '<div class="product-grid"><div class="empty-state"><span>👟</span>' + t('empty_no_results') + '</div></div>';
       return;
     }
+
+    // Pe homepage (inainte de a alege o categorie), aratam doar 3 randuri de
+    // produse + butoane "Vezi mai multe" (duce la categorii) si "Vezi toata
+    // galeria" (deschide lista completa, nefiltrata). In modul focus (dupa ce
+    // s-a ales deja o categorie / galeria completa), lista e mereu intreaga.
+    var inFocusMode = document.body.classList.contains('catalog-focus-mode');
+    var displayList = list;
+    var capped = false;
+    if (!inFocusMode) {
+      var maxItems = getProductGridColumns() * 3;
+      if (list.length > maxItems) {
+        displayList = list.slice(0, maxItems);
+        capped = true;
+      }
+    }
+
     var grid = document.createElement('div');
     grid.className = 'product-grid';
-    grid.innerHTML = list.map(productCardHtml).join('');
+    grid.innerHTML = displayList.map(productCardHtml).join('');
     container.innerHTML = '';
     container.appendChild(grid);
     bindProductCardEvents(grid);
+
+    if (capped) {
+      var actions = document.createElement('div');
+      actions.className = 'catalog-preview-actions';
+      actions.innerHTML =
+        '<button id="catalog-viewmore-btn" class="catalog-viewmore-btn">' + t('catalog_view_more') + '</button>' +
+        '<button id="catalog-viewgallery-btn" class="catalog-viewgallery-btn">' + t('catalog_view_gallery') + '</button>';
+      container.appendChild(actions);
+      var viewMoreBtn = document.getElementById('catalog-viewmore-btn');
+      if (viewMoreBtn) viewMoreBtn.addEventListener('click', function () {
+        var tiles = document.getElementById('category-tiles');
+        if (tiles) tiles.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      var viewGalleryBtn = document.getElementById('catalog-viewgallery-btn');
+      if (viewGalleryBtn) viewGalleryBtn.addEventListener('click', function () { applyFilters({}); });
+    }
   }
+
+  var productGridResizeDebounce = null;
+  window.addEventListener('resize', function () {
+    clearTimeout(productGridResizeDebounce);
+    productGridResizeDebounce = setTimeout(function () {
+      if (!document.body.classList.contains('catalog-focus-mode') && products && products.length) renderProductGrid();
+    }, 250);
+  });
 
   function findProductById(id) {
     return products.find(function (p) { return p.id === id; }) ||
