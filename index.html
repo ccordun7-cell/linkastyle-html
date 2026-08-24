@@ -110,16 +110,6 @@
   .mega-nav-item { position: relative; }
   .mega-nav-item > button { background: transparent; border: none; color: var(--navy); font-weight: 700; font-size: 14px; padding: 10px 12px; font-family: var(--font-body); border-radius: 8px; }
   .mega-nav-item > button.active, .mega-nav-item:hover > button { background: var(--light); color: var(--sky-dark); }
-  .mega-panel {
-    position: absolute; top: calc(100% + 8px); left: 0; background: white; border-radius: 16px;
-    box-shadow: 0 12px 40px rgba(0,0,0,.14); padding: 24px; display: none; z-index: 50;
-    min-width: 480px; grid-template-columns: 1fr 1fr 200px; gap: 28px;
-  }
-  .mega-nav-item:hover .mega-panel { display: grid; }
-  .mega-col h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--gray); margin-bottom: 10px; }
-  .mega-col a { display: block; font-size: 14px; color: var(--navy); padding: 5px 0; font-weight: 500; }
-  .mega-col a:hover { color: var(--sky-dark); }
-  .mega-tile { border-radius: 12px; overflow: hidden; height: 100%; min-height: 160px; display: flex; align-items: flex-end; padding: 14px; color: white; font-weight: 700; font-family: var(--font-display); font-size: 15px; }
   .header-actions { display: flex; align-items: center; gap: 6px; margin-left: auto; }
   .icon-btn { position: relative; background: var(--light); border: none; border-radius: 10px; width: 42px; height: 42px; font-size: 18px; flex-shrink: 0; }
   .icon-badge { position: absolute; top: -4px; right: -4px; background: var(--red); color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
@@ -401,6 +391,10 @@
   .fs-header h2 { flex: 1; text-align: center; font-family: var(--font-body); font-size: 17px; font-weight: 800; color: var(--navy); margin: 0; }
   .fs-back, .fs-close { background: none; border: none; font-size: 20px; color: var(--navy); cursor: pointer; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; }
   .fs-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; }
+  @media (min-width: 640px) {
+    .fs-content { max-width: 480px; margin: 0 auto; width: 100%; }
+    .fs-header h2 { max-width: 480px; margin: 0 auto; }
+  }
   .fs-row { display: block; width: 100%; text-align: left; padding: 16px 20px; font-family: var(--font-body); font-size: 15px; font-weight: 600; color: var(--navy); text-decoration: none; background: none; border: none; border-bottom: 1px solid #f2f2f2; }
   .fs-row.fs-highlight { color: var(--sky-dark); font-weight: 700; }
   .side-overlay.open { display: block; }
@@ -1698,40 +1692,12 @@ var BRAND_LOGOS = {
   // ===== Mega nav & mobile nav =====
   function renderMegaNav() {
     var nav = document.getElementById('mega-nav');
-    var brandLinksHtml = brands.map(function (b) {
-      return '<a href="#" data-brand="' + escapeHtml(b.slug) + '">' + escapeHtml(b.name) + '</a>';
-    }).join('');
 
+    // La cerere client: categoriile din bara de sus (desktop) functioneaza
+    // acum la fel ca pe mobil — click deschide acelasi flux pas-cu-pas
+    // (Vezi tot + brand/tip), nu un panou hover cu tot deodata.
     var itemsHtml = CATEGORIES.map(function (c) {
-      if (c.value === 'papucei') {
-        // Papucei nu e o categorie reala in baza de date — produsele raman cu
-        // genul lor real + type="papucei". Panoul arata gen, nu tip de incaltaminte.
-        var genderLinks = ['girls', 'boys', 'barefoot'].map(function (g) {
-          var lbl = g === 'girls' ? t('nav_girls') : g === 'boys' ? t('nav_boys') : t('nav_barefoot');
-          return '<a href="#" data-pap-mega-gender="' + g + '">' + lbl + '</a>';
-        }).join('');
-        return '' +
-          '<div class="mega-nav-item">' +
-            '<button data-pap-mega-viewall="1">' + t(c.labelKey) + '</button>' +
-            '<div class="mega-panel">' +
-              '<div class="mega-col"><h4>' + t('nav_type_title') + '</h4>' + genderLinks + '<a href="#" data-pap-mega-viewall="1">' + t('nav_view_all') + '</a></div>' +
-              '<div class="mega-col"><h4>' + t('nav_brand_title') + '</h4>' + brandLinksHtml + '</div>' +
-              '<div class="mega-tile ' + c.tile + '"><span>' + c.icon + ' ' + t(c.labelKey) + '</span></div>' +
-            '</div>' +
-          '</div>';
-      }
-      var typeLinks = TYPES.map(function (ty) {
-        return '<a href="#" data-cat="' + c.value + '" data-type="' + ty.value + '">' + t(ty.labelKey) + '</a>';
-      }).join('');
-      return '' +
-        '<div class="mega-nav-item">' +
-          '<button data-cat="' + c.value + '">' + t(c.labelKey) + '</button>' +
-          '<div class="mega-panel">' +
-            '<div class="mega-col"><h4>' + t('nav_type_title') + '</h4>' + typeLinks + '<a href="#" data-cat="' + c.value + '">' + t('nav_view_all') + '</a></div>' +
-            '<div class="mega-col"><h4>' + t('nav_brand_title') + '</h4>' + brandLinksHtml + '</div>' +
-            '<div class="mega-tile ' + c.tile + '"><span>' + c.icon + ' ' + t(c.labelKey) + '</span></div>' +
-          '</div>' +
-        '</div>';
+      return '<div class="mega-nav-item"><button data-cat="' + c.value + '">' + t(c.labelKey) + '</button></div>';
     }).join('') +
       '<div class="mega-nav-item"><button data-sale="1">' + t('nav_sale') + '</button></div>' +
       '<div class="mega-nav-item"><button data-reset="1">' + t('nav_all') + '</button></div>';
@@ -1741,23 +1707,8 @@ var BRAND_LOGOS = {
     Array.prototype.forEach.call(nav.querySelectorAll('[data-cat]'), function (el) {
       el.addEventListener('click', function (e) {
         e.preventDefault();
-        applyFilters({ category: el.getAttribute('data-cat'), type: el.getAttribute('data-type') || '' });
+        openCategoryBrowser(el.getAttribute('data-cat'));
       });
-    });
-    Array.prototype.forEach.call(nav.querySelectorAll('[data-pap-mega-gender]'), function (el) {
-      el.addEventListener('click', function (e) {
-        e.preventDefault();
-        applyFilters({ category: el.getAttribute('data-pap-mega-gender'), type: 'papucei' });
-      });
-    });
-    Array.prototype.forEach.call(nav.querySelectorAll('[data-pap-mega-viewall]'), function (el) {
-      el.addEventListener('click', function (e) {
-        e.preventDefault();
-        applyFilters({ type: 'papucei' });
-      });
-    });
-    Array.prototype.forEach.call(nav.querySelectorAll('[data-brand]'), function (el) {
-      el.addEventListener('click', function (e) { e.preventDefault(); applyFilters({ brand: el.getAttribute('data-brand') }); });
     });
     var saleBtn = nav.querySelector('[data-sale]');
     if (saleBtn) saleBtn.addEventListener('click', function () { applyFilters({ saleOnly: true }); });
