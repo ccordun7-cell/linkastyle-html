@@ -194,6 +194,11 @@
 
   /* ===== Category tiles ===== */
   .category-tiles { max-width: 1240px; margin: 0 auto; padding: 32px 20px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  body.catalog-focus-mode .homepage-extra { display: none !important; }
+  body.catalog-focus-mode footer.site-footer { display: block; }
+  body.catalog-focus-mode main.catalog-section#catalog-section { min-height: 60vh; }
+  .catalog-back-btn { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; color: var(--sky-dark); font-size: 15px; font-weight: 600; font-family: var(--font-body); cursor: pointer; padding: 0; margin-bottom: 16px; }
+  .catalog-back-btn:hover { text-decoration: underline; }
   .category-tile { cursor: pointer; }
   .category-tile-image { position: relative; border-radius: 14px; overflow: hidden; aspect-ratio: 3 / 2; background: #F5F6F8; }
   .category-tile-image img { width: 100%; height: 100%; object-fit: cover; }
@@ -621,7 +626,7 @@
 </div>
 
 <!-- Hero slider -->
-<section class="hero-slider" id="hero-slider">
+<section class="hero-slider homepage-extra" id="hero-slider">
   <div class="hero-slides" id="hero-slides"></div>
   <button class="hero-nav prev" id="hero-prev">‹</button>
   <button class="hero-nav next" id="hero-next">›</button>
@@ -629,15 +634,15 @@
 </section>
 
 <!-- Brand strip -->
-<div class="brand-strip">
+<div class="brand-strip homepage-extra">
   <div class="brand-strip-track" id="brand-strip-track"></div>
 </div>
 
 <!-- Category tiles -->
-<div class="category-tiles" id="category-tiles"></div>
+<div class="category-tiles homepage-extra" id="category-tiles"></div>
 
 <!-- Reduceri — sectiune evidentiata -->
-<div class="sale-section-wrap" id="sale-section-wrap" style="display:none;">
+<div class="sale-section-wrap homepage-extra" id="sale-section-wrap" style="display:none;">
   <main class="catalog-section sale-section">
     <div class="sale-section-header">
       <h2 class="section-title">🔥 <span data-i18n="section_sale">Reduceri</span></h2>
@@ -653,7 +658,7 @@
 </div>
 
 <!-- Top vânzări carousel -->
-<main class="catalog-section">
+<main class="catalog-section homepage-extra">
   <h2 class="section-title" data-i18n="section_bestsellers">Top vânzări</h2>
   <div class="product-carousel-wrap">
     <div class="product-carousel" id="bestsellers-carousel">
@@ -665,6 +670,7 @@
 
 <!-- Product catalog -->
 <main class="catalog-section" id="catalog-section">
+  <button id="catalog-back-btn" class="catalog-back-btn" style="display:none;">← <span data-i18n="catalog_back">Înapoi la meniu</span></button>
   <h2 class="section-title" data-i18n="section_all_products">Toate produsele</h2>
   <div class="filters">
     <select id="brand-filter"><option value="" data-i18n="filter_all_brands">Toate brandurile</option></select>
@@ -681,7 +687,7 @@
 </main>
 
 <!-- Promo banner -->
-<div class="promo-banner">
+<div class="promo-banner homepage-extra">
   <div class="promo-banner-inner">
     <div>
       <h3 data-i18n="promo_title">Colecția Barefoot — mișcare liberă pentru piciorul copilului</h3>
@@ -691,7 +697,7 @@
 </div>
 
 <!-- Themed section: Barefoot -->
-<main class="catalog-section" id="barefoot-section">
+<main class="catalog-section homepage-extra" id="barefoot-section">
   <h2 class="section-title" data-i18n="section_barefoot">Colecția Barefoot</h2>
   <div class="product-carousel-wrap">
     <div class="product-carousel" id="barefoot-grid">
@@ -702,7 +708,7 @@
 </main>
 
 <!-- Themed section: Școală -->
-<main class="catalog-section" id="school-section">
+<main class="catalog-section homepage-extra" id="school-section">
   <h2 class="section-title" data-i18n="section_school">Pregătiți de școală</h2>
   <div class="product-carousel-wrap">
     <div class="product-carousel" id="school-grid">
@@ -713,7 +719,7 @@
 </main>
 
 <!-- Trust section -->
-<div class="trust-section">
+<div class="trust-section homepage-extra">
   <div class="trust-grid">
     <div class="trust-item">
       <div class="icon">🏠</div>
@@ -873,6 +879,7 @@
       aria_instagram: 'Instagram',
       search_placeholder: 'Caută încălțăminte...',
       nav_all: 'Toate',
+      catalog_back: 'Înapoi la meniu',
       nav_papucei: 'Papucei',
       nav_girls: 'Fete',
       nav_boys: 'Băieți',
@@ -1083,6 +1090,7 @@
       aria_instagram: 'Instagram',
       search_placeholder: 'Поиск обуви...',
       nav_all: 'Все',
+      catalog_back: 'Назад в меню',
       nav_papucei: 'Тапочки',
       nav_girls: 'Девочки',
       nav_boys: 'Мальчики',
@@ -1472,6 +1480,22 @@ var BRAND_LOGOS = {
   function scrollToCatalog() {
     var el = document.getElementById('catalog-section');
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Modul "pagina separata": la alegerea unei categorii, ascunde restul
+  // continutului de pe homepage (hero, tile-uri, carusele tematice) si
+  // arata doar grila filtrata + o sageata de intoarcere la meniu.
+  function enterCatalogFocus() {
+    document.body.classList.add('catalog-focus-mode');
+    var backBtn = document.getElementById('catalog-back-btn');
+    if (backBtn) backBtn.style.display = 'inline-flex';
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }
+  function exitCatalogFocus() {
+    document.body.classList.remove('catalog-focus-mode');
+    var backBtn = document.getElementById('catalog-back-btn');
+    if (backBtn) backBtn.style.display = 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   // ===== Cart persistence =====
@@ -1875,6 +1899,7 @@ var BRAND_LOGOS = {
     if (filters.category === 'school') { filters.category = ''; filters.schoolCombined = true; }
     document.getElementById('brand-filter').value = filters.brand || '';
     loadProducts();
+    enterCatalogFocus();
     scrollToCatalog();
   }
 
@@ -3123,6 +3148,7 @@ var BRAND_LOGOS = {
     document.getElementById('brand-filter').addEventListener('change', function (e) { filters.brand = e.target.value; loadProducts(); });
     document.getElementById('sort-filter').addEventListener('change', function (e) { filters.sort = e.target.value; renderProductGrid(); });
     document.getElementById('burger-btn').addEventListener('click', function () { document.getElementById('mobile-nav').classList.toggle('open'); });
+    document.getElementById('catalog-back-btn').addEventListener('click', exitCatalogFocus);
 
     Array.prototype.forEach.call(document.querySelectorAll('.lang-switch-btn'), function (btn) {
       btn.addEventListener('click', function () { setLanguage(btn.getAttribute('data-lang')); });
