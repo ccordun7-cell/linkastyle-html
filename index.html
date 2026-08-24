@@ -447,6 +447,15 @@
   .checkout-consent-row { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color: var(--gray); line-height: 1.5; margin-bottom: 14px; cursor: pointer; }
   .checkout-consent-row input[type="checkbox"] { margin-top: 2px; flex-shrink: 0; width: 16px; height: 16px; cursor: pointer; }
   .checkout-consent-row a { color: var(--sky-dark); }
+  .toast-container { position: fixed; top: 84px; left: 50%; transform: translateX(-50%); z-index: 2000; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }
+  .toast { background: var(--navy); color: white; padding: 12px 20px; border-radius: 30px; font-size: 14px; font-weight: 700; font-family: var(--font-body); box-shadow: 0 8px 24px rgba(0,0,0,.18); display: flex; align-items: center; gap: 8px; opacity: 0; transform: translateY(-10px); transition: opacity .25s ease, transform .25s ease; white-space: nowrap; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast .toast-icon { font-size: 16px; }
+  .toast.toast-orange { background: var(--orange); }
+  @media (max-width: 640px) {
+    .toast-container { top: auto; bottom: 90px; }
+    .toast { font-size: 13px; padding: 10px 16px; white-space: normal; text-align: center; max-width: 88vw; }
+  }
   .newsletter-consent-row { display: flex; align-items: flex-start; gap: 6px; font-size: 11px; line-height: 1.4; margin-bottom: 10px; cursor: pointer; opacity: .9; }
   .newsletter-consent-row input[type="checkbox"] { margin-top: 2px; flex-shrink: 0; width: 14px; height: 14px; cursor: pointer; }
   .newsletter-modal .newsletter-consent-row { color: var(--gray); opacity: 1; text-align: left; }
@@ -800,6 +809,9 @@
   </div>
 </div>
 
+<!-- Toast notification (adaugare in cos / favorite) -->
+<div class="toast-container" id="toast-container"></div>
+
 <!-- Newsletter popup -->
 <div class="newsletter-modal-overlay" id="newsletter-overlay">
   <div class="newsletter-modal">
@@ -1063,6 +1075,9 @@
       wishlist_empty: 'Nu ai produse favorite încă.',
       wishlist_discover: 'Descoperă produsele',
       wishlist_view_product: 'Vezi produsul',
+      toast_added_cart: 'Adăugat în coș!',
+      toast_added_wishlist: 'Adăugat la favorite!',
+      toast_removed_wishlist: 'Eliminat din favorite',
       search_no_results: 'Niciun rezultat pentru "{term}".',
       footer_tagline: 'Încălțăminte pentru copii de brand european. Biomecanics, Primigi, Garvalin, D.D.Step.',
       footer_info_title: 'Informații',
@@ -1280,6 +1295,9 @@
       wishlist_empty: 'У тебя пока нет избранных товаров.',
       wishlist_discover: 'Смотреть товары',
       wishlist_view_product: 'Смотреть товар',
+      toast_added_cart: 'Добавлено в корзину!',
+      toast_added_wishlist: 'Добавлено в избранное!',
+      toast_removed_wishlist: 'Удалено из избранного',
       search_no_results: 'Ничего не найдено по запросу "{term}".',
       footer_tagline: 'Обувь для детей европейских брендов. Biomecanics, Primigi, Garvalin, D.D.Step.',
       footer_info_title: 'Информация',
@@ -1547,6 +1565,7 @@ var BRAND_LOGOS = {
     var existing = cart.find(function (i) { return i.product_id === item.product_id && i.size === item.size; });
     if (existing) { existing.quantity += item.quantity; } else { cart.push(item); }
     saveCart(); updateCartBadge();
+    showToast(t('toast_added_cart'), '🛒');
   }
   function removeFromCart(productId, size) {
     cart = cart.filter(function (i) { return !(i.product_id === productId && i.size === size); });
@@ -1572,6 +1591,7 @@ var BRAND_LOGOS = {
   function toggleWishlist(product) {
     if (isWishlisted(product.id)) {
       wishlist = wishlist.filter(function (w) { return w.product_id !== product.id; });
+      showToast(t('toast_removed_wishlist'), '💔');
     } else {
       var images = frontSortedImages(product.images);
       wishlist.push({
@@ -1579,8 +1599,27 @@ var BRAND_LOGOS = {
         slug: product.slug, image_url: images[0] ? images[0].url : '',
         price: product.is_sale && product.sale_price ? product.sale_price : product.price
       });
+      showToast(t('toast_added_wishlist'), '❤️');
     }
     saveWishlist(); updateWishlistBadge();
+  }
+
+  // ===== Toast notification =====
+  var toastTimeout = null;
+  function showToast(message, icon) {
+    var container = document.getElementById('toast-container');
+    if (!container) return;
+    var el = document.createElement('div');
+    el.className = 'toast';
+    el.innerHTML = '<span class="toast-icon">' + (icon || '✓') + '</span><span>' + message + '</span>';
+    container.innerHTML = '';
+    container.appendChild(el);
+    requestAnimationFrame(function () { el.classList.add('show'); });
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(function () {
+      el.classList.remove('show');
+      setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 250);
+    }, 2000);
   }
   function updateWishlistBadge() {
     var badge = document.getElementById('wishlist-badge');
