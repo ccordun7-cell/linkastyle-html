@@ -444,6 +444,12 @@
   .form-control { width: 100%; border: 1.5px solid #e0e4ea; border-radius: 10px; padding: 10px 14px; font-size: 14px; font-family: var(--font-body); outline: none; transition: border-color .2s; }
   .form-control:focus { border-color: var(--sky); }
   .form-error { color: var(--red); font-size: 13px; margin-top: 4px; }
+  .checkout-consent-row { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color: var(--gray); line-height: 1.5; margin-bottom: 14px; cursor: pointer; }
+  .checkout-consent-row input[type="checkbox"] { margin-top: 2px; flex-shrink: 0; width: 16px; height: 16px; cursor: pointer; }
+  .checkout-consent-row a { color: var(--sky-dark); }
+  .newsletter-consent-row { display: flex; align-items: flex-start; gap: 6px; font-size: 11px; line-height: 1.4; margin-bottom: 10px; cursor: pointer; opacity: .9; }
+  .newsletter-consent-row input[type="checkbox"] { margin-top: 2px; flex-shrink: 0; width: 14px; height: 14px; cursor: pointer; }
+  .newsletter-modal .newsletter-consent-row { color: var(--gray); opacity: 1; text-align: left; }
   .success-view { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; }
   .success-view .icon { font-size: 52px; margin-bottom: 16px; }
   .success-view h3 { font-family: var(--font-display); font-size: 19px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
@@ -771,6 +777,7 @@
       <h4 data-i18n="footer_newsletter_title">Newsletter</h4>
       <div style="opacity:.85; margin-bottom:10px;" data-i18n="footer_newsletter_desc">Află primul despre reduceri și colecții noi.</div>
       <input type="email" placeholder="adresa@email.com" id="footer-newsletter-email">
+      <label class="newsletter-consent-row"><input type="checkbox" id="footer-newsletter-consent"> <span data-i18n="newsletter_consent_label">Sunt de acord să primesc oferte și noutăți pe email.</span></label>
       <button id="footer-newsletter-btn" data-i18n="footer_newsletter_btn">Abonează-te</button>
       <div class="footer-payments">💳 💰</div>
     </div>
@@ -801,6 +808,7 @@
     <h3 data-i18n="newsletter_title">Fii primul!</h3>
     <p data-i18n="newsletter_desc">Abonează-te la newsletter și află primul despre reduceri și colecții noi.</p>
     <input type="email" placeholder="adresa@email.com" id="newsletter-modal-email">
+    <label class="newsletter-consent-row"><input type="checkbox" id="newsletter-modal-consent"> <span data-i18n="newsletter_consent_label">Sunt de acord să primesc oferte și noutăți pe email.</span></label>
     <button class="btn-block btn-sky" id="newsletter-modal-btn" data-i18n="newsletter_btn">Abonează-te</button>
   </div>
 </div>
@@ -1038,6 +1046,8 @@
       checkout_submit: 'Trimite comanda',
       checkout_sending: 'Se trimite...',
       checkout_error_required: 'Completează numele, telefonul și adresa de livrare.',
+      checkout_error_consent: 'Trebuie să fii de acord cu prelucrarea datelor pentru a trimite comanda.',
+      checkout_consent_label: 'Am citit și sunt de acord cu prelucrarea datelor mele cu caracter personal în scopul procesării și livrării acestei comenzi, conform <a href="/legal/confidentialitate.html" target="_blank">Politicii de confidențialitate</a>.',
       checkout_error_generic: 'A apărut o eroare. Încearcă din nou.',
       success_title: 'Comanda a fost trimisă!',
       success_order_number: 'Numărul comenzii:',
@@ -1067,6 +1077,7 @@
       footer_newsletter_title: 'Newsletter',
       footer_newsletter_desc: 'Află primul despre reduceri și colecții noi.',
       footer_newsletter_btn: 'Abonează-te',
+      newsletter_consent_label: 'Sunt de acord să primesc oferte și noutăți pe email.',
       footer_rights: 'Toate drepturile rezervate.',
       cookie_text: 'Acest site folosește cookies pentru a-ți oferi cea mai bună experiență.',
       cookie_privacy_link: 'Politica de confidențialitate',
@@ -1076,7 +1087,8 @@
       newsletter_btn: 'Abonează-te',
       newsletter_sending: 'Se trimite...',
       newsletter_success: 'Te-ai abonat! ✓',
-      newsletter_error: 'A apărut o eroare. Încearcă din nou.'
+      newsletter_error: 'A apărut o eroare. Încearcă din nou.',
+      newsletter_error_consent: 'Trebuie să bifezi acordul pentru a te abona.'
     },
     ru: {
       announce1: '🏠 Примерка дома — заказывай несколько размеров',
@@ -1251,6 +1263,8 @@
       checkout_submit: 'Отправить заказ',
       checkout_sending: 'Отправка...',
       checkout_error_required: 'Заполните имя, телефон и адрес доставки.',
+      checkout_error_consent: 'Необходимо согласие на обработку данных для отправки заказа.',
+      checkout_consent_label: 'Я прочитал(а) и согласен(на) с обработкой моих персональных данных с целью обработки и доставки этого заказа, согласно <a href="/legal/confidentialitate.html" target="_blank">Политике конфиденциальности</a>.',
       checkout_error_generic: 'Произошла ошибка. Попробуйте снова.',
       success_title: 'Заказ отправлен!',
       success_order_number: 'Номер заказа:',
@@ -1280,6 +1294,7 @@
       footer_newsletter_title: 'Рассылка',
       footer_newsletter_desc: 'Узнавай первым о скидках и новых коллекциях.',
       footer_newsletter_btn: 'Подписаться',
+      newsletter_consent_label: 'Я согласен(на) получать предложения и новости по email.',
       footer_rights: 'Все права защищены.',
       cookie_text: 'Этот сайт использует файлы cookie, чтобы обеспечить вам наилучший опыт.',
       cookie_privacy_link: 'Политика конфиденциальности',
@@ -1289,7 +1304,8 @@
       newsletter_btn: 'Подписаться',
       newsletter_sending: 'Отправка...',
       newsletter_success: 'Вы подписались! ✓',
-      newsletter_error: 'Произошла ошибка. Попробуйте снова.'
+      newsletter_error: 'Произошла ошибка. Попробуйте снова.',
+      newsletter_error_consent: 'Необходимо согласие для подписки.'
     }
   };
 
@@ -2857,6 +2873,7 @@ var BRAND_LOGOS = {
         '<p class="form-error" id="checkout-error" style="display:none;"></p>' +
       '</div>' +
       '<div class="cart-footer">' +
+        '<label class="checkout-consent-row"><input type="checkbox" id="f-consent"> <span>' + t('checkout_consent_label') + '</span></label>' +
         '<div class="cart-total-row"><span>' + t('receipt_subtotal') + '</span><span id="checkout-subtotal-val">' + ct.subtotal + ' MDL</span></div>' +
         '<div class="cart-total-row promo-discount-row" id="checkout-discount-row" style="' + (ct.discountAmount > 0 ? '' : 'display:none;') + '"><span>' + t('receipt_discount') + '</span><span id="checkout-discount-val">-' + ct.discountAmount + ' MDL</span></div>' +
         '<div class="cart-total-row"><span>' + t('receipt_delivery') + '</span><span id="checkout-delivery-val">' + (ct.deliveryCost === 0 ? t('receipt_free') : ct.deliveryCost + ' MDL') + '</span></div>' +
@@ -2941,11 +2958,17 @@ var BRAND_LOGOS = {
     var address = document.getElementById('f-address').value.trim();
     var payment = document.getElementById('f-payment').value;
     var notes = document.getElementById('f-notes').value.trim();
+    var consent = document.getElementById('f-consent').checked;
     var errorEl = document.getElementById('checkout-error');
     var submitBtn = document.getElementById('submit-order-btn');
 
     if (!name || !phone || !address) {
       errorEl.textContent = t('checkout_error_required');
+      errorEl.style.display = 'block';
+      return;
+    }
+    if (!consent) {
+      errorEl.textContent = t('checkout_error_consent');
       errorEl.style.display = 'block';
       return;
     }
@@ -2955,7 +2978,7 @@ var BRAND_LOGOS = {
 
     fetch(ORDER_API_URL, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ customer_name: name, customer_phone: phone, customer_email: email, delivery_address: address, delivery_city: city, payment_method: payment, notes: notes, items: cart, promo_code: appliedPromo ? appliedPromo.code : undefined })
+      body: JSON.stringify({ customer_name: name, customer_phone: phone, customer_email: email, delivery_address: address, delivery_city: city, payment_method: payment, notes: notes, items: cart, promo_code: appliedPromo ? appliedPromo.code : undefined, data_consent: consent })
     })
       .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
       .then(function (res) {
@@ -3116,15 +3139,20 @@ var BRAND_LOGOS = {
       document.getElementById('cookie-bar').classList.remove('open');
     });
   }
-  function subscribeNewsletter(emailInputId, buttonEl, source, onSuccess) {
+  function subscribeNewsletter(emailInputId, buttonEl, source, consentInputId, onSuccess) {
     var input = document.getElementById(emailInputId);
     var email = input.value.trim();
     var emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     var originalText = buttonEl.textContent;
+    var consentInput = consentInputId ? document.getElementById(consentInputId) : null;
 
     if (!emailRe.test(email)) {
       input.style.borderColor = '#e53935';
       input.focus();
+      return;
+    }
+    if (consentInput && !consentInput.checked) {
+      alert(t('newsletter_error_consent'));
       return;
     }
     input.style.borderColor = '';
@@ -3140,6 +3168,7 @@ var BRAND_LOGOS = {
         if (!res.ok) throw new Error((res.data && res.data.error) || t('newsletter_error'));
         buttonEl.textContent = t('newsletter_success');
         input.value = '';
+        if (consentInput) consentInput.checked = false;
         if (onSuccess) onSuccess();
         setTimeout(function () { buttonEl.disabled = false; buttonEl.textContent = originalText; }, 3000);
       })
@@ -3153,7 +3182,7 @@ var BRAND_LOGOS = {
 
   function initNewsletterPopup() {
     document.getElementById('footer-newsletter-btn').addEventListener('click', function () {
-      subscribeNewsletter('footer-newsletter-email', document.getElementById('footer-newsletter-btn'), 'footer');
+      subscribeNewsletter('footer-newsletter-email', document.getElementById('footer-newsletter-btn'), 'footer', 'footer-newsletter-consent');
     });
 
     if (localStorage.getItem(NEWSLETTER_STORAGE_KEY)) return;
@@ -3161,7 +3190,7 @@ var BRAND_LOGOS = {
     function dismiss() { localStorage.setItem(NEWSLETTER_STORAGE_KEY, '1'); document.getElementById('newsletter-overlay').classList.remove('open'); }
     document.getElementById('newsletter-close-btn').addEventListener('click', dismiss);
     document.getElementById('newsletter-modal-btn').addEventListener('click', function () {
-      subscribeNewsletter('newsletter-modal-email', document.getElementById('newsletter-modal-btn'), 'popup', function () {
+      subscribeNewsletter('newsletter-modal-email', document.getElementById('newsletter-modal-btn'), 'popup', 'newsletter-modal-consent', function () {
         setTimeout(dismiss, 1200);
       });
     });
