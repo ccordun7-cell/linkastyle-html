@@ -185,7 +185,7 @@
   /* ===== Category tiles ===== */
   .category-tiles { max-width: 1240px; margin: 0 auto; padding: 32px 20px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
   body.catalog-focus-mode .homepage-extra { display: none !important; }
-  body.catalog-focus-mode footer.site-footer { display: block; }
+  body.catalog-focus-mode footer.site-footer { display: none !important; }
   body.catalog-focus-mode main.catalog-section#catalog-section { min-height: 60vh; }
   .catalog-back-btn { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; color: var(--sky-dark); font-size: 15px; font-weight: 600; font-family: var(--font-body); cursor: pointer; padding: 0; margin-bottom: 16px; }
   .catalog-back-btn:hover { text-decoration: underline; }
@@ -607,7 +607,7 @@
 </div>
 
 <!-- Premium brands banner (fix, fara poza) -->
-<div class="premium-banner">
+<div class="premium-banner homepage-extra">
   <div class="premium-banner-inner">
     <span class="premium-banner-tag" data-i18n="premium_banner_tag">★ BRANDURI PREMIUM</span>
     <h2 class="premium-banner-title">
@@ -1483,7 +1483,14 @@ var BRAND_LOGOS = {
     document.body.classList.add('catalog-focus-mode');
     var backBtn = document.getElementById('catalog-back-btn');
     if (backBtn) backBtn.style.display = 'inline-flex';
-    window.scrollTo({ top: 0, behavior: 'auto' });
+    // <html> are scroll-behavior:smooth global — "auto" din JS NU forteaza
+    // instant, mosteneste CSS-ul smooth, ceea ce facea sa aterizeze mai jos
+    // de primul produs. Suprascriem temporar inline ca sa fie cu adevarat instant.
+    var htmlEl = document.documentElement;
+    var prevBehavior = htmlEl.style.scrollBehavior;
+    htmlEl.style.scrollBehavior = 'auto';
+    window.scrollTo(0, 0);
+    htmlEl.style.scrollBehavior = prevBehavior || '';
   }
   function exitCatalogFocus() {
     document.body.classList.remove('catalog-focus-mode');
@@ -1851,7 +1858,6 @@ var BRAND_LOGOS = {
     document.getElementById('brand-filter').value = filters.brand || '';
     loadProducts();
     enterCatalogFocus();
-    scrollToCatalog();
   }
 
   function renderBrandFilter() {
