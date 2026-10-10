@@ -200,6 +200,7 @@
   .category-tile-image img { width: 100%; height: 100%; object-fit: cover; }
   .category-tile-image .cat-fallback { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 52px; }
   .tile-papucei .cat-fallback { background: linear-gradient(135deg, #C77DFF, #9D4EDD); }
+  .tile-botine .cat-fallback { background: linear-gradient(135deg, #B07D62, #7F5539); }
   .tile-fete .cat-fallback { background: linear-gradient(135deg, #ff8fa3, #ff6b8b); }
   .tile-baieti .cat-fallback { background: linear-gradient(135deg, #4AADE8, #2f6fb0); }
   .tile-barefoot .cat-fallback { background: linear-gradient(135deg, #1A8A50, #0d5c33); }
@@ -311,7 +312,9 @@
   .size-btn.disabled .size-btn-cm { color: #ccc; }
   .size-selected-note { font-size: 12px; color: var(--gray); margin-top: 8px; }
   .size-btn.selected { border: 2px solid var(--sky); background: #eaf5fd; }
-  .size-btn.disabled { background: #f5f5f5; color: #ccc; text-decoration: line-through; cursor: not-allowed; }
+  .size-btn.disabled { background: #f5f5f5; color: #b0b6c0; text-decoration: line-through; cursor: not-allowed; position: relative; overflow: hidden; }
+  /* Marime consumata (stoc 0): ramane vizibila, dar cu o dunga diagonala peste buton */
+  .size-btn.disabled::after { content: ''; position: absolute; left: -10%; top: 50%; width: 120%; height: 2px; background: #c62828; opacity: .7; transform: rotate(-45deg); pointer-events: none; }
   .add-to-cart-btn { margin-top: 26px; width: 100%; padding: 15px; border-radius: 12px; border: none; background: #e0e4ea; color: #999; font-weight: 700; font-size: 15px; font-family: var(--font-body); }
   .add-to-cart-btn.ready { background: var(--orange); color: white; cursor: pointer; }
   .add-to-cart-btn.added { background: var(--green); color: white; }
@@ -903,6 +906,7 @@
       catalog_view_more: 'Vezi mai multe',
       catalog_view_gallery: 'Vezi toată galeria',
       nav_papucei: 'Papucei',
+      nav_botine: 'Botine',
       nav_girls: 'Fete',
       nav_boys: 'Băieți',
       nav_barefoot: 'Barefoot',
@@ -917,6 +921,7 @@
       type_ghete: 'Ghete',
       type_balerini: 'Balerini',
       type_papucei: 'Papucei',
+      type_botine: 'Botine',
       hero1_title: 'Colecția de vară — sandale ortopedice pentru fiecare pas',
       hero1_cta: 'Vezi colecția',
       hero2_title: 'Pregătiți de școală — ghete și pantofi rezistenți',
@@ -1123,6 +1128,7 @@
       catalog_view_more: 'Показать больше',
       catalog_view_gallery: 'Смотреть всю галерею',
       nav_papucei: 'Тапочки',
+      nav_botine: 'Полусапожки',
       nav_girls: 'Девочки',
       nav_boys: 'Мальчики',
       nav_barefoot: 'Барефут',
@@ -1137,6 +1143,7 @@
       type_ghete: 'Ботинки',
       type_balerini: 'Балетки',
       type_papucei: 'Тапочки',
+      type_botine: 'Полусапожки',
       hero1_title: 'Летняя коллекция — ортопедические сандалии для каждого шага',
       hero1_cta: 'Смотреть коллекцию',
       hero2_title: 'Готовимся к школе — прочные ботинки и туфли',
@@ -1408,17 +1415,24 @@ var BRAND_LOGOS = {
 
   var CATEGORIES = [
     { value: 'papucei', labelKey: 'nav_papucei', tile: 'tile-papucei', icon: '🩰' },
+    { value: 'botine', labelKey: 'nav_botine', tile: 'tile-botine', icon: '🥾' },
     { value: 'girls', labelKey: 'nav_girls', tile: 'tile-fete', icon: '👧' },
     { value: 'boys', labelKey: 'nav_boys', tile: 'tile-baieti', icon: '👦' },
     { value: 'barefoot', labelKey: 'nav_barefoot', tile: 'tile-barefoot', icon: '🦶' },
     { value: 'school', labelKey: 'nav_school', tile: 'tile-scoala', icon: '🎒' }
   ];
-  var CATEGORY_LABEL_KEYS = { girls: 'nav_girls', boys: 'nav_boys', barefoot: 'nav_barefoot', school: 'nav_school', papucei: 'nav_papucei' };
+  var CATEGORY_LABEL_KEYS = { girls: 'nav_girls', boys: 'nav_boys', barefoot: 'nav_barefoot', school: 'nav_school', papucei: 'nav_papucei', botine: 'nav_botine' };
+  // Categorii principale care sunt de fapt TIPURI de produs (cross-gen): produsul pastreaza
+  // genul real (girls/boys/barefoot) in category, iar type = valoarea de aici.
+  // Flux: Categorie -> alege gen -> alege brand -> produse.
+  var TYPE_CATEGORIES = ['papucei', 'botine'];
+  function isTypeCategory(v) { return TYPE_CATEGORIES.indexOf(v) !== -1; }
   var TYPES = [
     { value: 'sandale', labelKey: 'type_sandale' },
     { value: 'sneakers', labelKey: 'type_sneakers' },
     { value: 'pantofi', labelKey: 'type_pantofi' },
     { value: 'ghete', labelKey: 'type_ghete' },
+    { value: 'botine', labelKey: 'type_botine' },
     { value: 'balerini', labelKey: 'type_balerini' },
     { value: 'papucei', labelKey: 'type_papucei' }
   ];
@@ -1798,12 +1812,12 @@ var BRAND_LOGOS = {
   function mobileNavSubcatLinksHtml(categoryValue) {
     // Pentru categoria Papucei: nu are sens submeniu de tipuri (e ea insasi un tip) —
     // in schimb arata Fete/Baieti/Barefoot, ca sa se poata alege genul.
-    if (categoryValue === 'papucei') {
+    if (isTypeCategory(categoryValue)) {
       var genderRowsHtml = ['girls', 'boys', 'barefoot'].map(function (g) {
         var lbl = g === 'girls' ? t('nav_girls') : g === 'boys' ? t('nav_boys') : t('nav_barefoot');
-        return '<a href="#" data-mn-papucei-gender="' + g + '">' + lbl + '</a>';
+        return '<a href="#" data-mn-papucei-gender="' + g + '" data-mn-typecat="' + categoryValue + '">' + lbl + '</a>';
       }).join('');
-      var papuceiViewAllHtml = '<a href="#" class="mn-viewall" data-mn-papucei-viewall="1">' + t('nav_view_all') + '</a>';
+      var papuceiViewAllHtml = '<a href="#" class="mn-viewall" data-mn-papucei-viewall="1" data-mn-typecat="' + categoryValue + '">' + t('nav_view_all') + '</a>';
       return genderRowsHtml + papuceiViewAllHtml;
     }
     // Pentru Fete/Baieti: tipurile de incaltaminte + Barefoot/Scoala ca subcategorii speciale.
@@ -1877,14 +1891,14 @@ var BRAND_LOGOS = {
     Array.prototype.forEach.call(mobileNav.querySelectorAll('[data-mn-papucei-gender]'), function (el) {
       el.addEventListener('click', function (e) {
         e.preventDefault();
-        applyFilters({ category: el.getAttribute('data-mn-papucei-gender'), type: 'papucei' });
+        applyFilters({ category: el.getAttribute('data-mn-papucei-gender'), type: el.getAttribute('data-mn-typecat') });
         mobileNav.classList.remove('open');
       });
     });
     Array.prototype.forEach.call(mobileNav.querySelectorAll('[data-mn-papucei-viewall]'), function (el) {
       el.addEventListener('click', function (e) {
         e.preventDefault();
-        applyFilters({ type: 'papucei' });
+        applyFilters({ type: el.getAttribute('data-mn-typecat') });
         mobileNav.classList.remove('open');
       });
     });
@@ -1966,7 +1980,7 @@ var BRAND_LOGOS = {
     var container = document.getElementById('category-tiles');
     // "Papucei" nu apare in grila de tile-uri foto de pe homepage la cererea clientei
     // (ramane totusi in navigare: meniu de sus, hamburger, hero quicklinks).
-    container.innerHTML = CATEGORIES.filter(function (c) { return c.value !== 'papucei'; }).map(function (c) {
+    container.innerHTML = CATEGORIES.filter(function (c) { return !isTypeCategory(c.value); }).map(function (c) {
       return '<div class="category-tile ' + c.tile + '" data-cat="' + c.value + '">' +
         '<div class="category-tile-image" id="tile-img-' + c.value + '"><div class="cat-fallback">' + c.icon + '</div></div>' +
         '<div class="category-tile-label"><span>' + t(c.labelKey) + '</span><span class="arrow">→</span></div>' +
@@ -1979,13 +1993,13 @@ var BRAND_LOGOS = {
   }
 
   function loadCategoryTileImages() {
-    CATEGORIES.filter(function (c) { return c.value !== 'papucei'; }).forEach(function (c) {
+    CATEGORIES.filter(function (c) { return !isTypeCategory(c.value); }).forEach(function (c) {
       if (CATEGORY_TILE_IMAGES[c.value]) {
         var el = document.getElementById('tile-img-' + c.value);
         if (el) el.innerHTML = '<img src="' + escapeHtml(CATEGORY_TILE_IMAGES[c.value]) + '" alt="' + escapeHtml(t(c.labelKey)) + '">';
         return;
       }
-      var queryField = c.value === 'papucei' ? 'type' : 'category';
+      var queryField = isTypeCategory(c.value) ? 'type' : 'category';
       fetch(SUPABASE_URL + '/rest/v1/products_full?select=images&' + queryField + '=eq.' + c.value + '&limit=1', { headers: supabaseHeaders() })
         .then(function (r) { return r.json(); })
         .then(function (data) {
@@ -2001,7 +2015,7 @@ var BRAND_LOGOS = {
   // ===== Hero slider =====
   function renderPremiumQuicklinks() {
     var el = document.getElementById('premium-quicklinks');
-    var quickCats = CATEGORIES.filter(function (c) { return c.value === 'papucei' || c.value === 'girls' || c.value === 'boys' || c.value === 'barefoot'; });
+    var quickCats = CATEGORIES.filter(function (c) { return isTypeCategory(c.value) || c.value === 'girls' || c.value === 'boys' || c.value === 'barefoot'; });
     var catsHtml = '<div class="hero-quick-categories">' + quickCats.map(function (c) {
       return '<button class="hero-quick-cat" data-cat="' + c.value + '"><span class="emoji">' + c.icon + '</span><span class="label">' + t(c.labelKey) + '</span></button>';
     }).join('') + '</div>';
@@ -2020,8 +2034,8 @@ var BRAND_LOGOS = {
   var categoryBrowserState = { category: null, brand: null, barefootMode: false, schoolMode: false, step: 'brand', papuceiGender: null };
 
   function openCategoryBrowser(categoryValue) {
-    if (categoryValue === 'papucei') {
-      categoryBrowserState = { category: 'papucei', brand: null, barefootMode: false, schoolMode: false, step: 'papuceiGender', papuceiGender: null };
+    if (isTypeCategory(categoryValue)) {
+      categoryBrowserState = { category: categoryValue, brand: null, barefootMode: false, schoolMode: false, step: 'papuceiGender', papuceiGender: null };
     } else {
       categoryBrowserState = { category: categoryValue, brand: null, barefootMode: false, schoolMode: false, step: 'brand', papuceiGender: null };
     }
@@ -2041,10 +2055,12 @@ var BRAND_LOGOS = {
     // Papucei nu functioneaza ca celelalte categorii — e o categorie principala
     // dar produsele raman etichetate cu genul lor real (girls/boys/barefoot) +
     // type="papucei". Fluxul: Papucei -> alege gen -> alege brand -> produse.
-    if (categoryBrowserState.category === 'papucei') {
+    if (isTypeCategory(categoryBrowserState.category)) {
+      var typeCat = categoryBrowserState.category;
+      var typeCatLabel = t(CATEGORY_LABEL_KEYS[typeCat]);
       if (categoryBrowserState.step === 'papuceiGender') {
         backBtn.style.display = 'none';
-        titleEl.textContent = t('nav_papucei');
+        titleEl.textContent = typeCatLabel;
         var papAllHtml = '<a href="#" class="fs-row fs-highlight" data-pap-viewall="1">' + t('nav_view_all') + '</a>';
         var genderRowsHtml = ['girls', 'boys', 'barefoot'].map(function (g) {
           var lbl = g === 'girls' ? t('nav_girls') : g === 'boys' ? t('nav_boys') : t('nav_barefoot');
@@ -2055,7 +2071,7 @@ var BRAND_LOGOS = {
         var papAllEl = content.querySelector('[data-pap-viewall]');
         if (papAllEl) papAllEl.addEventListener('click', function (e) {
           e.preventDefault();
-          applyFilters({ type: 'papucei' });
+          applyFilters({ type: typeCat });
           closeCategoryBrowser();
         });
         Array.prototype.forEach.call(content.querySelectorAll('[data-pap-gender]'), function (el) {
@@ -2069,7 +2085,7 @@ var BRAND_LOGOS = {
       } else if (categoryBrowserState.step === 'papuceiBrand') {
         backBtn.style.display = 'flex';
         var genderLbl = categoryBrowserState.papuceiGender === 'girls' ? t('nav_girls') : categoryBrowserState.papuceiGender === 'boys' ? t('nav_boys') : t('nav_barefoot');
-        titleEl.textContent = t('nav_papucei') + ' · ' + genderLbl;
+        titleEl.textContent = typeCatLabel + ' · ' + genderLbl;
         var papAllBrandHtml = '<a href="#" class="fs-row fs-highlight" data-pap-brand-viewall="1">' + t('nav_view_all') + '</a>';
         var papBrandRowsHtml = brands.map(function (b) {
           return '<a href="#" class="fs-row" data-pap-brand="' + escapeHtml(b.slug) + '">' + escapeHtml(b.name) + '</a>';
@@ -2077,7 +2093,7 @@ var BRAND_LOGOS = {
         content.innerHTML = papAllBrandHtml + papBrandRowsHtml;
 
         function papuceiFilters(extra) {
-          var base = { category: categoryBrowserState.papuceiGender, type: 'papucei' };
+          var base = { category: categoryBrowserState.papuceiGender, type: typeCat };
           return Object.assign(base, extra || {});
         }
         var papAllBrandEl = content.querySelector('[data-pap-brand-viewall]');
@@ -3266,7 +3282,7 @@ var BRAND_LOGOS = {
     document.getElementById('wishlist-backdrop').addEventListener('click', closeWishlist);
     document.getElementById('cb-close-btn').addEventListener('click', closeCategoryBrowser);
     document.getElementById('cb-back-btn').addEventListener('click', function () {
-      if (categoryBrowserState.category === 'papucei') {
+      if (isTypeCategory(categoryBrowserState.category)) {
         categoryBrowserState.step = 'papuceiGender';
         categoryBrowserState.papuceiGender = null;
         renderCategoryBrowserStep();
